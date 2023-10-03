@@ -44,8 +44,8 @@ def main(crop_width, crop_height, crop_num, output_type):
     with open(DIR_INPUT_JSON, 'r') as f:
         coco_data = json.load(f)
         
-    DIR_CROP_IMAGE = DIR_OUTPUT + output_type
-    DIR_CROP_MASK  = DIR_OUTPUT + output_type + "_masks/"
+    DIR_CROP_IMAGE = DIR_OUTPUT + "images/" + output_type
+    DIR_CROP_MASK  = DIR_OUTPUT + "masks/"  + output_type
     
     os.makedirs(DIR_CROP_IMAGE, exist_ok=True)
     os.makedirs(DIR_CROP_MASK , exist_ok=True)
@@ -142,8 +142,8 @@ def main(crop_width, crop_height, crop_num, output_type):
 
                 mask_indices = mask_data > 0
                 mask_col_data[mask_indices] = colors[mask_data[mask_indices]]
-
-                cv2.imwrite(DIR_CROP_MASK + "{0:06d}.png".format(new_image_id), mask_col_data)
+                
+                cv2.imwrite(os.path.join(DIR_CROP_MASK, new_file_name), mask_col_data)
 
                 new_image_id += 1
                 

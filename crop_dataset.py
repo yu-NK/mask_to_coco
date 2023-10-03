@@ -26,7 +26,7 @@ def get_args():
     parser.add_argument("-n", dest="num", type=int, default=10, help="Number of Crop Image Generations per Image. Default is 10.")
     
     # train or val or test
-    parser.add_argument("-t", dest="type", type=str, default='type', help="train or val or test. Default is train.")
+    parser.add_argument("-t", dest="type", type=str, default='train', help="train or val or test. Default is train.")
 
     args = parser.parse_args()
 

@@ -39,9 +39,9 @@ def images(mask_path):
         tmp["file_name"] = os.path.basename(file)
         tmp["width"] = width
         tmp["height"] = height
-        tmp["date_captured"] = ""
-        tmp["coco_url"] = ""
-        tmp["flickr_url"] = ""
+        tmp["date_captured"] = None
+        tmp["coco_url"] = None
+        tmp["flickr_url"] = None
         tmps.append(tmp)
     return tmps
 

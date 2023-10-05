@@ -80,9 +80,10 @@ def annotations(mask_path):
             tmp["area"] = float(area)
             tmp["iscrowd"] = 0
             tmp["bbox"] =  [float(x), float(y), float(width), float(height)]
-            tmps.append(tmp)
-
-            annotation_id += 1
+            
+            if(len(segmentation_list)>4):
+                tmps.append(tmp)
+                annotation_id += 1
     
     return tmps
 

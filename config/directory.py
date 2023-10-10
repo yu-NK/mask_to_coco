@@ -2,11 +2,10 @@
 
 import os
 
-DIR_BASE = '/workspace/dataset/'
+DIR_DATASET = '/workspace/dataset/flower-ct-dataset/flower_ct/'
 
-DIR_INPUT = DIR_BASE + 'flower-ct-dataset/flower_ct/'
-DIR_INPUT_JSON  = DIR_INPUT + 'annotations.json'
-#DIR_INPUT_IMAGE = DIR_INPUT + 'JPEGImages/'
+DIR_JSON  = DIR_DATASET + 'annotations.json'
+#DIR_IMAGE = DIR_DATASET + 'JPEGImages/'
 
-DIR_OUTPUT = DIR_BASE + 'crop_annotation/'
+DIR_OUTPUT = '/workspace/dataset/crop_annotation/'
 os.makedirs(DIR_OUTPUT, exist_ok=True)

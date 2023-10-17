@@ -74,7 +74,7 @@ def annotations(mask_path):
             x, y, width, height, area = data[1]
     
             tmp["segmentation"] = [segmentation_list]
-            tmp["id"] = str(annotation_id)
+            tmp["id"] = annotation_id
             tmp["image_id"] = i + 1
             tmp["category_id"] = 1
             tmp["area"] = float(area)

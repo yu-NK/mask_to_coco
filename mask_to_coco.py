@@ -42,10 +42,8 @@ def get_args():
 def annotations(mask_path):
     tmps = []
     
-    mask_files = glob.glob(os.path.join(mask_path, "*"))
+    mask_files = glob.glob(os.path.join(mask_path, "*")
     mask_files.sort()
-    
-    print(mask_files)
 
     annotation_id = 1
     

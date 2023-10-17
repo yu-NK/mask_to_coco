@@ -7,7 +7,7 @@ from tqdm import tqdm
 import cv2
 
 import argparse
-from config.directory import DIR_INPUT, DIR_INPUT_JSON, DIR_OUTPUT
+from config.directory import DIR_DATASET, DIR_INPUT_JSON, DIR_OUTPUT
 
 def get_args():
     # 準備
@@ -61,7 +61,7 @@ def main(crop_width, crop_height, crop_num, output_type):
 
         if annotations:
             # 画像を読み込む
-            image = Image.open(os.path.join(DIR_INPUT ,file_name))
+            image = Image.open(os.path.join(DIR_DATASET ,file_name))
             width, height = image.size
 
             for i in range(crop_num):

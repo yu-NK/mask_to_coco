@@ -42,9 +42,9 @@ def get_args():
 def annotations(mask_path):
     tmps = []
     
-    mask_files = glob.glob(os.path.join(mask_path, "*")
+    mask_files = glob.glob(os.path.join(mask_path, "*"))
     mask_files.sort()
-
+    
     annotation_id = 1
     
     for i, file in tqdm(enumerate(mask_files)):

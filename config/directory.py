@@ -2,7 +2,7 @@
 
 import os
 
-DIR_DATASET = '/workspace/dataset/flower-ct-dataset/flower_ct/'
+DIR_INPUT = '/workspace/dataset/flower-ct-dataset/flower_ct/'
 
 DIR_JSON  = DIR_DATASET + 'annotations.json'
 #DIR_IMAGE = DIR_DATASET + 'JPEGImages/'

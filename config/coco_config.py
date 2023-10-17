@@ -26,7 +26,7 @@ def licenses():
 def images(mask_path):
     tmps = []
     
-    files = glob.glob(mask_path + "/*.png")
+    files = glob.glob(os.path.join(mask_path, "*"))
     files.sort()
 
     for i, file in enumerate(files):

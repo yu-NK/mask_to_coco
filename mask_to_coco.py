@@ -41,13 +41,15 @@ def get_args():
 
 def annotations(mask_path):
     tmps = []
-
-    files = glob.glob(mask_path + "/*.png")
-    files.sort()
+    
+    mask_files = glob.glob(os.path.join(mask_path, "*"))
+    mask_files.sort()
+    
+    print(mask_files)
 
     annotation_id = 1
     
-    for i, file in tqdm(enumerate(files)):
+    for i, file in tqdm(enumerate(mask_files)):
         img = cv2.imread(file)
 
         seg, seg_bool = background_del(img)

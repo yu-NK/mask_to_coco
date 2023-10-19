@@ -24,8 +24,7 @@ def get_args():
     parser.add_argument("-o", "--output-dir", dest="out", type=str, default='out', help="The output directory. Dafault is ./out")
 
     args = parser.parse_args()
-
-    # 引数から画像番号
+    
     dir_base = args.dir
     dir_out  = args.out
 

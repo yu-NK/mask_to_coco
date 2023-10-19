@@ -7,7 +7,9 @@ from tqdm import tqdm
 import cv2
 
 import argparse
-from config.directory import DIR_DATASET, DIR_INPUT_JSON, DIR_OUTPUT
+import sys
+sys.path.append("..")
+from config.directory import DIR_DATASET, DIR_JSON, DIR_OUTPUT
 
 def get_args():
     # 準備
@@ -41,7 +43,7 @@ def get_args():
 def main(crop_width, crop_height, crop_num, output_type):
 
     # COCOデータセットのJSONファイルを読み込む
-    with open(DIR_INPUT_JSON, 'r') as f:
+    with open(DIR_JSON, 'r') as f:
         coco_data = json.load(f)
         
     DIR_CROP_IMAGE = DIR_OUTPUT + "images/" + output_type

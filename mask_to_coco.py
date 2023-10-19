@@ -9,6 +9,7 @@ import os
 from tqdm import tqdm
 
 import argparse
+# config/coco_config.pyで指定
 from config.coco_config import info, licenses, images, categories
 from utils.tools import background_del, assign_cluster_number
 
@@ -21,7 +22,7 @@ def get_args():
     # 標準入力以外の場合
     parser = argparse.ArgumentParser()
     
-    # クロップサイズを設定
+    # COCOフォーマットに変換する画像が含まれているディレクトリの指定
     parser.add_argument("dir", type=str, help="The base directory path of the dataset.")
     
     # train or val or test
@@ -31,8 +32,7 @@ def get_args():
     parser.add_argument("-n", "--name", dest="name", type=str, default='auto', help="Specify the JSON file name. The default is '[TYPE]_annotations.json'.")
     
     args = parser.parse_args()
-
-    # 引数から画像番号
+    
     dir_base   = args.dir
     input_type = args.type
     json_name  = args.name

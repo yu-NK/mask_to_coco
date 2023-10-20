@@ -1,5 +1,7 @@
 # mask_to_coco
-Creating a COCO-format dataset from mask images for instance segmentation.
+色付きのマスク画像をCOCOフォーマットのデータセットに変換するためののリポジトリ．
+
+This repository is a repository for converting colored mask images into a COCO format dataset.
 
 ## Directry Structure
 ```
@@ -20,6 +22,25 @@ mask_to_coco
     |-- COCO_Image_Viewer.ipynb
     `-- visualization_mask.py
 ```
+### `./config`
+ディレクトリやCOCOフォーマットなどの設定を格納
+
+Stores configurations, such as settings related to COCO format.
+
+### `./utils`
+コードに必要な関数を格納
+
+Contains necessary functions for the code.
+
+### `./visualization`
+データセットの可視化に関するコードを格納
+
+Stores code related to dataset visualization.
+
+### `./tools`
+データセットに関わるその他のコードを格納
+
+Stores other code related to the dataset.
 
 ## How to Use
 ### `./mask_to_coco.py`
@@ -29,7 +50,7 @@ The code converts colored mask images into a COCO format dataset.
 
 `./config/coco_config.py`でCOCOフォーマットに必要な**info，licenses，categories**を編集する必要がある．
 
-You need to edit the **'info,' 'licenses,' and 'categories'** in `./config/coco_config.py` to meet the requirements of the COCO format.
+You need to edit **'info,' 'licenses,' and 'categories'** in the COCO format within `./config/coco_config.py`.
 
 ```
 usage: mask_to_coco.py [-h] [-t TYPE] [-n NAME] dir
@@ -43,9 +64,9 @@ optional arguments:
   -n NAME, --name NAME  Specify the JSON file name. The default is '[TYPE]_annotations.json'.
 ```
 
-データセットは以下のディレクトリ構造に設定することで変換することができる．ただし，masksの画像は全て**PNG**で格納し，imagesの画像と同じ名前にする必要がある．
+データセットは以下のディレクトリ構造に設定することで変換することができる．ただし，masksの画像は全て**PNG**で格納し，imagesの画像と同じ名前にする必要がある．（imagesの画像もPNG推奨）
 
-You can perform the conversion by organizing the dataset with the following directory structure. However, all images in the 'masks' directory must be stored in **PNG format** and have the same names as the images in the 'images' directory.
+You can perform the conversion by organizing the dataset with the following directory structure. However, all images in the 'masks' directory must be stored in **PNG format** and have the same names as the images in the 'images' directory.（It is recommended to use PNG format for images as well.）
 
 ```
 [Dataset Name]
@@ -67,7 +88,7 @@ You can perform the conversion by organizing the dataset with the following dire
         `-- zzz.png
 ```
 
-### `./visualization_mask.py`
+### `./visualization/visualization_mask.py`
 COCOフォーマットのデータセットを可視化するためのコード．
 
 Code for visualizing a COCO format dataset.
@@ -88,7 +109,7 @@ mask_to_coco.pyでのディレクトリ構造（masksを除く）にする必要
 The directory structure needs to match that in `mask_to_coco.py` (excluding the 'masks' directory). If no output path is specified, the output will be placed in `./out`.
 
 ### `./tools/crop_dataset.py`
-COCOフォーマットのデータセットの画像からクロップ画像を作成し，新たなデータセットを作成するコード．**花のCT画像に対応するため，特定の処理が入っているため，他のデータを扱う際には変更の必要がある．**
+COCOフォーマットのデータセットの画像からクロップ画像を作成し，新たなデータセットを作成するコード．**花のCT画像に対応するため，特定の処理が入っており，他のデータを扱う際には変更の必要がある．**
 
 Code to create cropped images from images in a COCO format dataset and generate a new dataset. **Specific processing is included to correspond to flower CT images, so modifications may be necessary when working with other data.**
 
@@ -103,11 +124,11 @@ optional arguments:
   -t TYPE     train or val or test. Default is train.
 ```
 
-入力するデータセットの格納先や出力先などは`./config/directory.py`で変更する必要がある．基本的にはmask_to_coco.pyでのディレクトリ構造（masksを除く）であることを仮定している．
+入力するデータセットの格納先や出力先などは`./config/directory.py`で変更する必要がある．基本的には`mask_to_coco.py`でのディレクトリ構造（masksを除く）であることを仮定している．
 
 Settings such as the storage location of the input dataset and the output destination need to be modified in `./config/directory.py`. It is assumed, in essence, that the directory structure (excluding 'masks') follows that in `mask_to_coco.py`.
 
-### `./dataset_mean-std_calc.py`
+### `./tools/dataset_mean-std_calc.py`
 
 **PyTorchが使える環境が必要**
 

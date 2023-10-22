@@ -14,7 +14,8 @@ mask_to_coco
 |-- mask_to_coco.py
 |-- tools
 |   |-- crop_dataset.py
-|   `-- dataset_mean-std_calc.py
+|   |-- dataset_mean-std_calc.py
+|   `-- RandAugment.py
 |-- utils
 |   |-- __init__.py
 |   `-- tools.py
@@ -101,7 +102,7 @@ positional arguments:
 
 optional arguments:
   -h, --help                show this help message and exit
-  -o OUT, --output-dir OUT  The output directory. Dafault is ./out
+  -o OUT, --output-dir OUT  The output directory. Default is ./out
 ```
 
 mask_to_coco.pyでのディレクトリ構造（masksを除く）にする必要がある．出力は指定がなければ，`./out`以下に出力される．
@@ -148,9 +149,32 @@ options:
   -h, --help  show this help message and exit
 ```
 
+### `./tools/RandAugment.py`
+
+データ拡張手法である[RandAugment](https://proceedings.neurips.cc/paper/2020/hash/d85b63ef0ccb114d0a3bb7b7d808028f-Abstract.html)のコード．**データ拡張方法や画像の取り扱いなど変更の必要がある．**
+
+The code for the data augmentation technique, [RandAugment](https://proceedings.neurips.cc/paper/2020/hash/d85b63ef0ccb114d0a3bb7b7d808028f-Abstract.html). **Modifications are required for data augmentation methods and image handling.**
+
+```
+usage: RandAugment.py [-h] [-o OUTPUT_DIR] [-n N] [-m M] [-a NUM] input_dir
+
+positional arguments:
+  input_dir             Directory containing images and masks for data augmentation.
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -o OUTPUT_DIR, --output-dir OUTPUT_DIR
+                        Output directory of images and masks after data augmentation. Default is ./out
+  -n N, --pram-n N      The parameter 'n' in RandAugment. Dafault is 4.
+  -m M, --pram-m M      The parameter 'm' in RandAugment. Dafault is 10
+  -a NUM, --aug-num NUM
+                        Number of augmentations. Default is 100.
+```
+
 ## Reference website
 - [自前のMask画像からCOCO format jsonを作成](https://salt22g.hatenablog.jp/entry/2020/12/20/210419)
 - [COCO Formatの作り方](https://qiita.com/harmegiddo/items/da131ae5bcddbbbde41f)
 - [how to calculate “img_norm_cfg” for custom dataset #354](https://github.com/open-mmlab/mmdetection/issues/354)
 - [voc2coco
 /COCO_Image_Viewer.ipynb](https://github.com/Tony607/voc2coco/blob/master/COCO_Image_Viewer.ipynb)
+- [ildoonet/pytorch-randaugment/RandAugment/augmentations.py](https://github.com/ildoonet/pytorch-randaugment/blob/master/RandAugment/augmentations.py)

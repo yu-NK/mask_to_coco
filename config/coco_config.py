@@ -6,22 +6,34 @@ import glob
 import datetime as dt
 import collections as cl
 
-def info():
-    tmp = cl.OrderedDict()
-    tmp["description"] = "Flower CT Image Dataset"
-    tmp["url"] = None
-    tmp["version"] = None
-    tmp["year"] = str(dt.datetime.now(dt.timezone.utc).year)
-    tmp["contributor"] = "imp-plant"
-    tmp["data_created"] = "2020/03/19"
-    return tmp
-
 def licenses():
     tmp = cl.OrderedDict()
+    tmp["name"] = ""
     tmp["id"] = 1
-    tmp["url"] = None
-    tmp["name"] = None
+    tmp["url"] = ""
     return tmp
+
+def info():
+    tmp = cl.OrderedDict()
+    tmp["contributor"] = ""
+    tmp["data_created"] = ""
+    tmp["description"] = ""
+    tmp["url"] = ""
+    tmp["version"] = ""
+    tmp["year"] = ""
+    return tmp
+
+def categories():
+    tmps = []
+    sup = ["petal"]
+    cat = ["petal"]
+    for i in range(len(sup)):
+        tmp = cl.OrderedDict()
+        tmp["id"] = i+1
+        tmp["name"] = cat[i]
+        tmp["supercategory"] = ""#sup[i]
+        tmps.append(tmp)
+    return tmps
 
 def images(mask_path):
     tmps = []
@@ -34,25 +46,13 @@ def images(mask_path):
         height, width = img.shape[:3]
 
         tmp = cl.OrderedDict()
-        tmp["license"] = 1
         tmp["id"] = i + 1
-        tmp["file_name"] = os.path.basename(file)
         tmp["width"] = width
         tmp["height"] = height
-        tmp["date_captured"] = None
-        tmp["coco_url"] = None
-        tmp["flickr_url"] = None
-        tmps.append(tmp)
-    return tmps
-
-def categories():
-    tmps = []
-    sup = ["petal"]
-    cat = ["petal"]
-    for i in range(len(sup)):
-        tmp = cl.OrderedDict()
-        tmp["id"] = i+1
-        tmp["name"] = cat[i]
-        tmp["supercategory"] = sup[i]
+        tmp["file_name"] = os.path.basename(file)
+        tmp["license"] = 1
+        tmp["coco_url"] = ""
+        tmp["flickr_url"] = ""
+        tmp["date_captured"] = ""
         tmps.append(tmp)
     return tmps

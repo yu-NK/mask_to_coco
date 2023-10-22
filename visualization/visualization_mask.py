@@ -21,7 +21,7 @@ def get_args():
     parser.add_argument("dir", type=str, help="The base directory path of the dataset.")
     
     # 出力先を設定
-    parser.add_argument("-o", "--output-dir", dest="out", type=str, default='out', help="The output directory. Dafault is ./out")
+    parser.add_argument("-o", "--output-dir", dest="out", type=str, default='out', help="The output directory. Default is ./out")
 
     args = parser.parse_args()
     

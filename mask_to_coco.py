@@ -69,8 +69,7 @@ def annotations(mask_path):
                     segmentation_list.append(int(point[0, 1]))
 
             nLabels, labelImages, data, center = cv2.connectedComponentsWithStatsWithAlgorithm(cluster_temp, 8, cv2.CV_16U, cv2.CCL_DEFAULT)
-
-            label_fix = np.zeros(nLabels-1)
+            
             x, y, width, height, area = data[1]
     
             tmp["segmentation"] = [segmentation_list]

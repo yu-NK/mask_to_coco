@@ -12,6 +12,7 @@ mask_to_coco
 |   |-- coco_config.py
 |   `-- directory.py
 |-- mask_to_coco.py
+|-- mask_to_coco_multi_core.py
 |-- tools
 |   |-- crop_dataset.py
 |   |-- dataset_mean-std_calc.py
@@ -88,6 +89,28 @@ You can perform the conversion by organizing the dataset with the following dire
         |-- zzz.png
         `-- zzz.png
 ```
+
+### `./mask_to_coco_multi_core.py`
+色付きのマスク画像をCOCOフォーマットのデータセットに変換するコード（並列化バージョン）． データセットの要件は`mask_to_coco.py`と同様です．
+
+The code converts colored mask images into a COCO format dataset（**Parallel Version**).　The dataset requirements are the same as in `mask_to_coco.py`.
+
+```
+usage: mask_to_coco_multi_core.py [-h] [-t TYPE] [-n NAME] [-c CORE] dir
+
+positional arguments:
+  dir                   The base directory path of the dataset.
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -t TYPE, --type TYPE  train or val or test. Default is train.
+  -n NAME, --name NAME  Specify the JSON file name. The default is '[TYPE]_annotations.json'.
+  -c CORE, --core CORE  The number of cores to be used for parallelization. The default is the number of physical cores in the system.
+```
+**mask_to_coco.pyからの変更点：**　同じ色のマスクが分離している場合、それぞれを別のオブジェクトとして扱う．
+
+**Changes from mask_to_coco.py:** When masks of the same color are separated, each of them is treated as a separate object
+
 
 ### `./visualization/visualization_mask.py`
 COCOフォーマットのデータセットを可視化するためのコード．

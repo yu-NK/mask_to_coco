@@ -1,7 +1,7 @@
 # mask_to_coco
-色付きのマスク画像をCOCOフォーマットのデータセットに変換するためののリポジトリ．
+各オブジェクトごとに色分けされたマスク画像から、COCOフォーマットのjsonファイルを生成するためのリポジトリ．
 
-This repository is a repository for converting colored mask images into a COCO format dataset.
+This repository for generating a COCO format JSON file from mask images color-coded for each object.
 
 ## Directry Structure
 ```
@@ -14,9 +14,10 @@ mask_to_coco
 |-- mask_to_coco.py
 |-- mask_to_coco_multi_core.py
 |-- tools
+|   |-- RandAugment.py
 |   |-- crop_dataset.py
-|   |-- dataset_mean-std_calc.py
-|   `-- RandAugment.py
+|   |-- crop_image-mask.py
+|   `-- dataset_mean-std_calc.py
 |-- utils
 |   |-- __init__.py
 |   `-- tools.py
@@ -46,9 +47,9 @@ Stores other code related to the dataset.
 
 ## How to Use
 ### `./mask_to_coco.py`
-色付きのマスク画像をCOCOフォーマットのデータセットに変換するコード．
+各オブジェクトごとに色分けされたマスク画像から、COCOフォーマットのjsonファイルを生成するコード．
 
-The code converts colored mask images into a COCO format dataset.
+Code to generate a COCO format JSON file from mask images color-coded for each object.
 
 `./config/coco_config.py`でCOCOフォーマットに必要な**info，licenses，categories**を編集する必要がある．
 
@@ -91,9 +92,9 @@ You can perform the conversion by organizing the dataset with the following dire
 ```
 
 ### `./mask_to_coco_multi_core.py`
-色付きのマスク画像をCOCOフォーマットのデータセットに変換するコード（並列化バージョン）． データセットの要件は`mask_to_coco.py`と同様です．
+各オブジェクトごとに色分けされたマスク画像から、COCOフォーマットのjsonファイルを生成するコード（並列化バージョン）． データセットの要件は`mask_to_coco.py`と同様です．
 
-The code converts colored mask images into a COCO format dataset（**Parallel Version**).　The dataset requirements are the same as in `mask_to_coco.py`.
+Code to generate a COCO format JSON file from mask images color-coded for each object（**Parallel Version**).　The dataset requirements are the same as in `mask_to_coco.py`.
 
 ```
 usage: mask_to_coco_multi_core.py [-h] [-t TYPE] [-n NAME] [-c CORE] dir
@@ -151,6 +152,31 @@ optional arguments:
 入力するデータセットの格納先や出力先などは`./config/directory.py`で変更する必要がある．基本的には`mask_to_coco.py`でのディレクトリ構造（masksを除く）であることを仮定している．
 
 Settings such as the storage location of the input dataset and the output destination need to be modified in `./config/directory.py`. It is assumed, in essence, that the directory structure (excluding 'masks') follows that in `mask_to_coco.py`.
+
+### `./tools/crop_image-mask.py`
+画像とマスク画像（各オブジェクトごとに色分けされたマスク画像）のディレクトリからそれぞれのクロップ画像を生成するコード． **花のCT画像に対応するため，特定の処理が入っており，他のデータを扱う際には変更の必要がある．**
+
+Code to generate individual cropped images from directories of images and mask images (mask images color-coded for each object). **Specific processing is included to correspond to flower CT images, so modifications may be necessary when working with other data.**
+
+```
+usage: crop_image-mask.py [-h] [-x WIDTH] [-y HEIGHT] [-n NUM] [-t TYPE] input_dir output_dir
+
+positional arguments:
+  input_dir   The base directory path of images and masks.
+  output_dir  Storage location for cropped images and masks
+
+optional arguments:
+  -h, --help  show this help message and exit
+  -x WIDTH    width of the cropped image. Default is 150.
+  -y HEIGHT   height of the cropped image. Default is 150.
+  -n NUM      Number of Crop Image Generations per Image. Default is 10.
+  -t TYPE     train or val or test. Default is train.
+```
+
+基本的には`mask_to_coco.py`でのディレクトリ構造であることを仮定している．
+
+It is assumed, in essence, that the directory structure follows that in `mask_to_coco.py`.
+
 
 ### `./tools/dataset_mean-std_calc.py`
 

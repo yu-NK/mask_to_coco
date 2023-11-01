@@ -28,8 +28,12 @@ def get_args():
     parser.add_argument("output_dir", type=str, help="Storage location for cropped images and masks")
     
     # クロップサイズを設定
-    parser.add_argument("-x", dest="width", type=int, default=150, help="width of the cropped image. Default is 150.")
-    parser.add_argument("-y", dest="height", type=int, default=150, help="height of the cropped image. Default is 150.")
+    parser.add_argument("--crop-x", dest="crop_width", type=int, default=50, help="width of the cropped image. Default is 50.")
+    parser.add_argument("--crop-y", dest="crop_height", type=int, default=50, help="height of the cropped image. Default is 50.")
+    
+    # クロップサイズを設定
+    parser.add_argument("--resize-x", dest="resize_width", type=int, default=150, help="width after resizing. Default is 150.")
+    parser.add_argument("--resize-y", dest="resize_height", type=int, default=150, help="height after resizing. Default is 150.")
     
     # 各画像におけるクロップ画像の生成回数
     parser.add_argument("-n", dest="num", type=int, default=10, help="Number of Crop Image Generations per Image. Default is 10.")
@@ -40,16 +44,18 @@ def get_args():
     args = parser.parse_args()
 
     # 引数から画像番号
-    DIR_INPUT   = args.input_dir
-    DIR_OUTPUT  = args.output_dir
-    crop_width  = args.width
-    crop_height = args.height
-    crop_num    = args.num
-    output_type = args.type
+    DIR_INPUT     = args.input_dir
+    DIR_OUTPUT    = args.output_dir
+    crop_width    = args.crop_width
+    crop_height   = args.crop_height
+    resize_width  = args.resize_width
+    resize_height = args.resize_height
+    crop_num      = args.num
+    output_type   = args.type
 
-    return DIR_INPUT, DIR_OUTPUT, crop_width, crop_height, crop_num, output_type
+    return DIR_INPUT, DIR_OUTPUT, crop_width, crop_height, resize_width, resize_height, crop_num, output_type
 
-def main(DIR_INPUT, DIR_OUTPUT, crop_width, crop_height, crop_num, output_type):
+def main(DIR_INPUT, DIR_OUTPUT, crop_width, crop_height, resize_width, resize_height, crop_num, output_type):
 
     img_files = glob.glob(os.path.join(DIR_INPUT, "images", output_type, "*"))
     mask_files = glob.glob(os.path.join(DIR_INPUT, "masks", output_type, "*"))
@@ -103,11 +109,12 @@ def main(DIR_INPUT, DIR_OUTPUT, crop_width, crop_height, crop_num, output_type):
                     cropped_image_th = np.where(cropped_image_NLMD > 100, 255, 0)
 
                     white_pixel_count = np.count_nonzero(cropped_image_th == 255)
-                    if(white_pixel_count>1000): flag = False
+                    if(white_pixel_count>200): flag = False
                     #########################################################################
 
-                new_file_name = img_name + f'_{i:03d}.png'
-                cropped_image.save(os.path.join(DIR_CROP_IMAGE, new_file_name))
+                new_file_name = img_name + f'_{i:03d}_crop_resize.png'
+                cropped_image_resize = cropped_image.resize((resize_width, resize_height))
+                cropped_image_resize.save(os.path.join(DIR_CROP_IMAGE, new_file_name))
 
                 cropped_mask_np = np.array(cropped_mask)
                 seg, seg_bool = background_del(cropped_mask_np)
@@ -145,10 +152,11 @@ def main(DIR_INPUT, DIR_OUTPUT, crop_width, crop_height, crop_num, output_type):
                 mask_indices = mask_data > 0
                 mask_col_data[mask_indices] = colors[mask_data[mask_indices]]
 
-                cv2.imwrite(os.path.join(DIR_CROP_MASK, new_file_name), mask_col_data)
+                mask_col_resize = cv2.resize(mask_col_data, (resize_height, resize_width), interpolation=cv2.INTER_NEAREST)
+                cv2.imwrite(os.path.join(DIR_CROP_MASK, new_file_name), mask_col_resize)
 
                 new_image_id += 1
                 
 if __name__ == "__main__":
-    DIR_INPUT, DIR_OUTPUT, crop_width, crop_height, crop_num, output_type = get_args()
-    main(DIR_INPUT, DIR_OUTPUT, crop_width, crop_height, crop_num, output_type)
+    DIR_INPUT, DIR_OUTPUT, crop_width, crop_height, resize_width, resize_height, crop_num, output_type = get_args()
+    main(DIR_INPUT, DIR_OUTPUT, crop_width, crop_height, resize_width, resize_height, crop_num, output_type)

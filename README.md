@@ -155,9 +155,9 @@ optional arguments:
 Settings such as the storage location of the input dataset and the output destination need to be modified in `./config/directory.py`. It is assumed, in essence, that the directory structure (excluding 'masks') follows that in `mask_to_coco.py`.
 
 ### `./tools/crop_image-mask.py`
-画像とマスク画像（各オブジェクトごとに色分けされたマスク画像）のディレクトリからそれぞれのクロップ画像を生成するコード． 生成されたクロップ画像は指定された画像サイズにリサイズされる．**花のCT画像に対応するため，特定の処理が入っており，他のデータを扱う際には変更の必要がある．**
+画像とマスク画像（各オブジェクトごとに色分けされたマスク画像）のディレクトリからそれぞれのクロップ画像を生成するコード． **花のCT画像に対応するため，特定の処理が入っており，他のデータを扱う際には変更の必要がある．**
 
-Code to generate individual cropped images from directories of images and mask images (mask images color-coded for each object). The generated cropped image is resized to the specified image size. **Specific processing is included to correspond to flower CT images, so modifications may be necessary when working with other data.**
+Code to generate individual cropped images from directories of images and mask images (mask images color-coded for each object). **Specific processing is included to correspond to flower CT images, so modifications may be necessary when working with other data.**
 
 ```
 usage: crop_image-mask.py [-h] [-x WIDTH] [-y HEIGHT] [-n NUM] [-t TYPE] input_dir output_dir
@@ -179,9 +179,9 @@ optional arguments:
 It is assumed, in essence, that the directory structure follows that in `mask_to_coco.py`.
 
 ### `./tools/crop_image-mask_resize.py`
-画像とマスク画像（各オブジェクトごとに色分けされたマスク画像）のディレクトリからそれぞれのクロップ画像を生成するコード． **花のCT画像に対応するため，特定の処理が入っており，他のデータを扱う際には変更の必要がある．**
+画像とマスク画像（各オブジェクトごとに色分けされたマスク画像）のディレクトリからそれぞれのクロップ画像を生成するコード． 生成されたクロップ画像は指定された画像サイズにリサイズされる． **花のCT画像に対応するため，特定の処理が入っており，他のデータを扱う際には変更の必要がある．**
 
-Code to generate individual cropped images from directories of images and mask images (mask images color-coded for each object). **Specific processing is included to correspond to flower CT images, so modifications may be necessary when working with other data.**
+Code to generate individual cropped images from directories of images and mask images (mask images color-coded for each object). The generated cropped image is resized to the specified image size. **Specific processing is included to correspond to flower CT images, so modifications may be necessary when working with other data.**
 
 ```
 usage: crop_image-mask_resize.py [-h] [--crop-x CROP_WIDTH] [--crop-y CROP_HEIGHT] [--resize-x RESIZE_WIDTH] [--resize-y RESIZE_HEIGHT] [-n NUM] [-t TYPE] input_dir output_dir
@@ -201,6 +201,10 @@ optional arguments:
   -n NUM                Number of Crop Image Generations per Image. Default is 10.
   -t TYPE               train or val or test. Default is train.
 ```
+
+基本的には`mask_to_coco.py`でのディレクトリ構造であることを仮定している．
+
+It is assumed, in essence, that the directory structure follows that in `mask_to_coco.py`.
 
 
 ### `./tools/dataset_mean-std_calc.py`

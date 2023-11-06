@@ -19,7 +19,7 @@ from concurrent.futures.process import ProcessPoolExecutor
 def get_args():
     # 準備
     parser = argparse.ArgumentParser(
-        description="Creating a COCO-format dataset from mask images for instance segmentation."
+        description="Creating a COCO-format dataset from mask images for instance segmentation （Parallel Version)."
     )
 
     # 標準入力以外の場合

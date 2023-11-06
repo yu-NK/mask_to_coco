@@ -18,6 +18,7 @@ mask_to_coco
 |   |-- crop_dataset.py
 |   |-- crop_image-mask.py
 |   |-- crop_image-mask_resize.py
+|   |-- crop_rotate.py
 |   `-- dataset_mean-std_calc.py
 |-- utils
 |   |-- __init__.py
@@ -206,6 +207,32 @@ optional arguments:
 
 It is assumed, in essence, that the directory structure follows that in `mask_to_coco.py`.
 
+### `./tools/crop_rotate.py`
+
+画像とマスク画像（各オブジェクトごとに色分けされたマスク画像）のディレクトリからそれぞれのクロップ画像を生成するコード． このコードは回転させながら横長の長方形のように画像を切り出す．前処理として，指定された回転の中心座標が画像中心となるように平行移動をしている． **花のCT画像に対応するため，特定の処理が入っており，他のデータを扱う際には変更の必要がある．**
+
+Code to generate individual cropped images from directories of images and mask images (mask images color-coded for each object). This code crops the image while rotating it to resemble a landscape-oriented rectangle. As a preprocessing step, it performs a translation to ensure that the specified rotation center coordinates align with the center of the image. **Specific processing is included to correspond to flower CT images, so modifications may be necessary when working with other data.**
+
+```
+usage: crop_rotate.py [-h] [--crop-w WIDTH] [--crop-h HEIGHT] [--step STEP] [--type TYPE] [--rotate-x CENTER_X] [--rotate-y CENTER_Y] input_dir output_dir
+
+positional arguments:
+  input_dir            The base directory path of images and masks.
+  output_dir           Storage location for cropped images and masks
+
+optional arguments:
+  -h, --help           show this help message and exit
+  --crop-w WIDTH       width of the cropped image. Default is 900.
+  --crop-h HEIGHT      height of the cropped image. Default is 25.
+  --step STEP          Number of Crop Image Generations per Image. Default is 10.
+  --type TYPE          train or val or test. Default is train.
+  --rotate-x CENTER_X  X-coordinate of the rotation center. Default is 421.
+  --rotate-y CENTER_Y  Y-coordinate of the rotation center. Default is 435.
+```
+
+基本的には`mask_to_coco.py`でのディレクトリ構造であることを仮定している．
+
+It is assumed, in essence, that the directory structure follows that in `mask_to_coco.py`.
 
 ### `./tools/dataset_mean-std_calc.py`
 

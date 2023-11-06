@@ -16,7 +16,7 @@ from utils.tools import background_del, assign_cluster_number
 def get_args():
     # 準備
     parser = argparse.ArgumentParser(
-        description="Crop an Existing Dataset (COCO Format) to Generate Mask Images"
+        description="Code to generate individual cropped images from directories of images and mask images (mask images color-coded for each object)"
     )
 
     # 標準入力以外の場合

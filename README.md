@@ -223,7 +223,7 @@ positional arguments:
 optional arguments:
   -h, --help           show this help message and exit
   --crop-w WIDTH       width of the cropped image. Default is 900.
-  --crop-h HEIGHT      height of the cropped image. Default is 25.
+  --crop-h HEIGHT      height of the cropped image. Default is 32.
   --step STEP          Number of Crop Image Generations per Image. Default is 10.
   --type TYPE          train or val or test. Default is train.
   --rotate-x CENTER_X  X-coordinate of the rotation center. Default is 421.

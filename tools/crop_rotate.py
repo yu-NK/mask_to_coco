@@ -26,7 +26,7 @@ def get_args():
     
     # クロップサイズを設定
     parser.add_argument("--crop-w", dest="width", type=int, default=900, help="width of the cropped image. Default is 900.")
-    parser.add_argument("--crop-h", dest="height", type=int, default=25, help="height of the cropped image. Default is 25.")
+    parser.add_argument("--crop-h", dest="height", type=int, default=32, help="height of the cropped image. Default is 32.")
     
     # 画像の回転ステップ
     parser.add_argument("--step", dest="step", type=int, default=10, help="Number of Crop Image Generations per Image. Default is 10.")
@@ -94,8 +94,8 @@ def main(DIR_INPUT, DIR_OUTPUT, crop_width, crop_height, angle_step, output_type
             
             image = (Image.fromarray(img_center_np)).convert('L')
             
-            rect_x = rotate_x - crop_width // 2
-            rect_y = rotate_y - crop_height // 2
+            rect_x = center_x - crop_width // 2
+            rect_y = center_y - crop_height // 2
             
             for angle in range(0, 360, angle_step):
                 rotated_image = image.rotate(angle)

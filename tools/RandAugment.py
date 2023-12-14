@@ -1,6 +1,10 @@
-# code in this file is adpated from rpmcruz/autoaugment and ildoonet/pytorch-randaugment
-# https://github.com/rpmcruz/autoaugment/blob/master/transformations.py
+# The original code in this file is quoted from RandAugment/augmentations.py in pytorch-randaugment by ildoonet and is provided under the MIT License.
+
+# Copyright (c) 2019 Ildoo Kim
+# Released under the MIT license
 # https://github.com/ildoonet/pytorch-randaugment/blob/master/RandAugment/augmentations.py
+
+# I have modified the code to perform similar data augmentation on color-segmented mask images and original images for instance segmentation. There are parts that are specialized for specific tasks.
 
 import random
 

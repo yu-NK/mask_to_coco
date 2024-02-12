@@ -98,7 +98,7 @@ def main(DIR_INPUT, DIR_OUTPUT, crop_width, crop_height, angle_step, output_type
             rect_y = center_y - crop_height // 2
             
             for angle in range(0, 360, angle_step):
-                rotated_image = image.rotate(angle)
+                rotated_image = image.rotate(angle, resample=Image.BICUBIC)
                 rotated_mask  = mask_center.rotate(angle)
                 
                 crop_image = rotated_image.crop((rect_x, rect_y, rect_x + crop_width, rect_y + crop_height))

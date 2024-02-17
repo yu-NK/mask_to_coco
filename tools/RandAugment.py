@@ -50,14 +50,14 @@ def ShearX(img, mask, v):  # [-0.3, 0.3]
     assert -0.3 <= v <= 0.3
     if random.random() > 0.5:
         v = -v
-    return img.transform(img.size, PIL.Image.Transform.AFFINE, (1, v, 0, 0, 1, 0)), mask.transform(img.size, PIL.Image.Transform.AFFINE, (1, v, 0, 0, 1, 0))
+    return img.transform(img.size, PIL.Image.Transform.AFFINE, (1, v, 0, 0, 1, 0), resample=Image.Resampling.BICUBIC), mask.transform(img.size, PIL.Image.Transform.AFFINE, (1, v, 0, 0, 1, 0))
 
 
 def ShearY(img, mask, v):  # [-0.3, 0.3]
     assert -0.3 <= v <= 0.3
     if random.random() > 0.5:
         v = -v
-    return img.transform(img.size, PIL.Image.Transform.AFFINE, (1, 0, 0, v, 1, 0)), mask.transform(img.size, PIL.Image.Transform.AFFINE, (1, 0, 0, v, 1, 0))
+    return img.transform(img.size, PIL.Image.Transform.AFFINE, (1, 0, 0, v, 1, 0), resample=Image.Resampling.BICUBIC), mask.transform(img.size, PIL.Image.Transform.AFFINE, (1, 0, 0, v, 1, 0))
 
 
 def TranslateX(img, mask, v):  # [-150, 150] => percentage: [-0.45, 0.45]
@@ -94,7 +94,7 @@ def Rotate(img, mask, v):  # [-30, 30]
     assert -30 <= v <= 30
     if random.random() > 0.5:
         v = -v
-    return img.rotate(v), mask.rotate(v)
+    return img.rotate(v, resample=Image.Resampling.BICUBIC), mask.rotate(v)
 
 
 def AutoContrast(img, mask, _):
@@ -236,9 +236,9 @@ def augment_list():  # 16 oeprations and their ranges
         #(Contrast, 0.1, 1.9),
         #(Brightness, 0.1, 1.9),
         #(Sharpness, 0.1, 1.9),
-        (ShearX, 0., 0.3),
-        (ShearY, 0., 0.3),
-        (CutoutAbs, 0, 40),
+        #(ShearX, 0., 0.3),
+        #(ShearY, 0., 0.3),
+        #(CutoutAbs, 0, 40),
         (TranslateXabs, 0., 100),
         (TranslateYabs, 0., 100),
         (Flip, 0, 1)

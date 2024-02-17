@@ -12,7 +12,8 @@ mask_to_coco
 |   |-- coco_config.py
 |   `-- directory.py
 |-- mask_to_coco.py
-|-- mask_to_coco_multi_core.py
+|-- mask_to_coco_parallel_polygon.py
+|-- mask_to_coco_parallel_segtype.py
 |-- tools
 |   |-- RandAugment.py
 |   |-- crop_dataset.py
@@ -93,13 +94,13 @@ You can perform the conversion by organizing the dataset with the following dire
         `-- zzz.png
 ```
 
-### `./mask_to_coco_multi_core.py`
-各オブジェクトごとに色分けされたマスク画像から、COCOフォーマットのjsonファイルを生成するコード（並列化バージョン）． データセットの要件は`mask_to_coco.py`と同様です．
+### `./mask_to_coco_parallel_polygon.py`
+各オブジェクトごとに色分けされたマスク画像から、COCOフォーマットのjsonファイルを生成するコード（並列化バージョン）． データセットの要件は`mask_to_coco.py`と同様．
 
 Code to generate a COCO format JSON file from mask images color-coded for each object（**Parallel Version**).　The dataset requirements are the same as in `mask_to_coco.py`.
 
 ```
-usage: mask_to_coco_multi_core.py [-h] [-t TYPE] [-n NAME] [-c CORE] dir
+usage: mask_to_coco_parallel_polygon.py [-h] [-t TYPE] [-n NAME] [-c CORE] dir
 
 positional arguments:
   dir                   The base directory path of the dataset.
@@ -107,6 +108,33 @@ positional arguments:
 optional arguments:
   -h, --help            show this help message and exit
   -t TYPE, --type TYPE  train or val or test. Default is train.
+  -n NAME, --name NAME  Specify the JSON file name. The default is '[TYPE]_annotations.json'.
+  -c CORE, --core CORE  The number of cores to be used for parallelization. The default is the number of physical cores in the system.
+```
+**mask_to_coco.pyからの変更点：**　同じ色のマスクが分離している場合、それぞれを別のオブジェクトとして扱う．
+
+**Changes from mask_to_coco.py:** When masks of the same color are separated, each of them is treated as a separate object
+
+### `./mask_to_coco_parallel_segtype.py`
+各オブジェクトごとに色分けされたインスタンスセグメンテーション（背景を除く1クラス）用のマスク画像から，並列処理でCOCO形式のデータセットを作成する．セグメンテーションのフォーマットは，RLE(Run-Length Encoding)またはPolygonから選択できる．データセットの要件は`mask_to_coco.py`と同様．
+
+**pycocotoolsのインストールが必要**
+
+Create a COCO format dataset from color-coded mask images for each object (excluding background) for instance segmentation (single class). Using parallel processing. The format of segmentation can be chosen from either RLE (Run-Length Encoding) or Polygon.　The dataset requirements are the same as in `mask_to_coco.py`.
+
+**Installation of pycocotools is required**
+
+```
+usage: mask_to_coco_parallel_segtype.py [-h] [-t TYPE] [-f FORMAT] [-n NAME] [-c CORE] dir
+
+positional arguments:
+  dir                   The base directory path of the dataset.
+
+options:
+  -h, --help            show this help message and exit
+  -t TYPE, --type TYPE  train or val or test. Default is train.
+  -f FORMAT, --format FORMAT
+                        Selection between RLE format or Polygon format (0: RLE format, 1: Polygon format). The default is 0: RLE format.
   -n NAME, --name NAME  Specify the JSON file name. The default is '[TYPE]_annotations.json'.
   -c CORE, --core CORE  The number of cores to be used for parallelization. The default is the number of physical cores in the system.
 ```

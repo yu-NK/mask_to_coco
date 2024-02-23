@@ -1,11 +1,14 @@
 # mask_to_coco
 
-[For the English version of the README, click here.](./README_en.md)
+[日本語版READMEはこちら](./README.md)
 
-## 概要
-各オブジェクトごとに色分けされたインスタンスセグメンテーション（背景を除く1クラス）用のマスク画像から，COCOフォーマットのデータセット（jsonファイル）を作成するためのリポジトリ．
+> [!WARNING]
+> This README has been translated from the Japanese version by ChatGPT. Please be cautious as the translation may contain inaccuracies.
 
-## ディレクトリ構造
+## Overview
+This repository is designed for creating COCO format datasets (JSON files) from instance segmentation mask images colored for each object, excluding the background.
+
+## Directory Structure
 ```
 mask_to_coco
 |-- README.md
@@ -30,28 +33,27 @@ mask_to_coco
     |-- COCO_Image_Viewer.ipynb
     `-- visualization_mask.py
 ```
+
 ### `./config`
-ディレクトリやCOCOフォーマットなどの設定を格納
+Stores settings for directories and the COCO format.
 
 ### `./utils`
-コードに必要な関数を格納
+Contains necessary functions for the code.
 
 ### `./visualization`
-データセットの可視化に関するコードを格納
+Holds code for dataset visualization.
 
 ### `./tools`
-データセットに関わるその他のコードを格納
+Contains additional codes related to the dataset.
 
-## 使い方
+## Usage
 
 > [!IMPORTANT]
-> - 花のCT画像に対応するため，特定の処理が入っているコードが存在する．他のデータを扱う際には変更の必要がある．
-> - `mask_to_coco_parallel_segtype.py`を用いる場合はpycocotoolsのインストールが必要．
+> - Some codes contain specific processes to accommodate flower CT images, which may need adjustments for handling other data types.
+> - Installation of `pycocotools` is required to use `mask_to_coco_parallel_segtype.py`.
 
 ### `./mask_to_coco.py`
-各オブジェクトごとに色分けされたインスタンスセグメンテーション（背景を除く1クラス）用のマスク画像から，COCO形式のデータセットを作成するコード．
-
-`./config/coco_config.py`でCOCOフォーマットに必要な**info，licenses，categories**を編集する必要がある．
+A script for creating COCO format datasets from instance segmentation mask images colored for each object. Editing **info, licenses, categories** required for COCO format in `./config/coco_config.py` is necessary.
 
 ```bash
 python mask_to_coco.py [-h] [-t TYPE] [-n NAME] dir
@@ -65,7 +67,7 @@ python mask_to_coco.py [-h] [-t TYPE] [-n NAME] dir
 #   -n NAME, --name NAME  Specify the JSON file name. The default is '[TYPE]_annotations.json'.
 ```
 
-データセットは以下のディレクトリ構造に設定することで変換することができる．ただし，masksの画像は全て**PNG**で格納し，imagesの画像と同じ名前にする必要がある．（imagesの画像もPNG推奨）
+The dataset can be converted by setting it to the following directory structure. However, all images in masks must be stored in **PNG** and have the same name as the images in images (images in images are also recommended to be in PNG).
 
 ```
 [Dataset Name]
@@ -88,7 +90,7 @@ python mask_to_coco.py [-h] [-t TYPE] [-n NAME] dir
 ```
 
 ### `./mask_to_coco_parallel_polygon.py`
-各オブジェクトごとに色分けされたインスタンスセグメンテーション（背景を除く1クラス）用のマスク画像から，並列処理でCOCO形式のデータセットを作成する． データセットの要件は`mask_to_coco.py`と同様．
+Parallel processing script for creating COCO format datasets from mask images colored for each object. The dataset requirements are the same as `mask_to_coco.py`.
 
 ```bash
 python mask_to_coco_parallel_polygon.py [-h] [-t TYPE] [-n NAME] [-c CORE] dir
@@ -102,12 +104,13 @@ python mask_to_coco_parallel_polygon.py [-h] [-t TYPE] [-n NAME] [-c CORE] dir
 #   -n NAME, --name NAME  Specify the JSON file name. The default is '[TYPE]_annotations.json'.
 #   -c CORE, --core CORE  The number of cores to be used for parallelization. The default is the number of physical cores in the system.
 ```
-**mask_to_coco.pyからの変更点：**　同じ色のマスクが分離している場合，それぞれを別のオブジェクトとして扱う．
+
+**Changes from `mask_to_coco.py`:** If masks of the same color are separated, each is treated as a different object.
 
 ### `./mask_to_coco_parallel_segtype.py`
-各オブジェクトごとに色分けされたインスタンスセグメンテーション（背景を除く1クラス）用のマスク画像から，並列処理でCOCO形式のデータセットを作成する．セグメンテーションのフォーマットは，RLE (Run-Length Encoding)またはPolygonから選択できる．データセットの要件は`mask_to_coco.py`と同様．
+Parallel processing script for creating COCO format datasets from instance segmentation mask images colored for each object. The segmentation format can be chosen from RLE (Run-Length Encoding) or Polygon. The dataset requirements are the same as `mask_to_coco.py`.
 
-**pycocotoolsのインストールが必要**
+**Installation of `pycocotools` is required.**
 
 ```bash
 python mask_to_coco_parallel_segtype.py [-h] [-t TYPE] [-f FORMAT] [-n NAME] [-c CORE] dir
@@ -123,11 +126,11 @@ python mask_to_coco_parallel_segtype.py [-h] [-t TYPE] [-f FORMAT] [-n NAME] [-c
 #   -n NAME, --name NAME  Specify the JSON file name. The default is '[TYPE]_annotations.json'.
 #   -c CORE, --core CORE  The number of cores to be used for parallelization. The default is the number of physical cores in the system.
 ```
-**mask_to_coco.pyからの変更点：**　同じ色のマスクが分離している場合，それぞれを別のオブジェクトとして扱う．
 
+**Changes from `mask_to_coco.py`:** If masks of the same color are separated, each is treated as a different object.
 
 ### `./visualization/visualization_mask.py`
-COCOフォーマットのデータセットを可視化するためのコード．
+Code for visualizing a COCO format dataset.
 
 ```bash
 python visualization_mask.py [-h] [-o OUT] dir
@@ -140,10 +143,10 @@ python visualization_mask.py [-h] [-o OUT] dir
 #   -o OUT, --output-dir OUT  The output directory. Default is ./out
 ```
 
-mask_to_coco.pyでのディレクトリ構造（masksを除く）にする必要がある．出力は指定がなければ，`./out`以下に出力される．
+The directory structure (excluding masks) must be the same as in `mask_to_coco.py`. The output is stored in `./out` by default unless specified otherwise.
 
 ### `./tools/crop_dataset.py`
-COCOフォーマットのデータセットの画像からクロップ画像を作成し，新たなデータセットを作成するコード．**花のCT画像に対応するため，特定の処理が入っており，他のデータを扱う際には変更の必要がある．**
+Code for creating cropped images from COCO format dataset images and generating a new dataset. **Contains specific processing for flower CT images, requiring modifications for handling other data.**
 
 ```bash
 python crop_dataset.py [-h] [-x WIDTH] [-y HEIGHT] [-n NUM] [-t TYPE]
@@ -156,10 +159,10 @@ python crop_dataset.py [-h] [-x WIDTH] [-y HEIGHT] [-n NUM] [-t TYPE]
 #   -t TYPE     train or val or test. Default is train.
 ```
 
-入力するデータセットの格納先や出力先などは`./config/directory.py`で変更する必要がある．基本的には`mask_to_coco.py`でのディレクトリ構造（masksを除く）であることを仮定している．
+The storage location for input datasets and output, among other settings, need to be changed in `./config/directory.py`. It assumes a directory structure (excluding masks) similar to `mask_to_coco.py`.
 
 ### `./tools/crop_image-mask.py`
-画像とマスク画像（各オブジェクトごとに色分けされたマスク画像）のディレクトリからそれぞれのクロップ画像を生成するコード． **花のCT画像に対応するため，特定の処理が入っており，他のデータを扱う際には変更の必要がある．**
+This script generates cropped images from directories of images and mask images (mask images color-coded for each object). **It contains specific processes for flower CT images, requiring modifications when handling other data types.**
 
 ```bash
 python crop_image-mask.py [-h] [-x WIDTH] [-y HEIGHT] [-n NUM] [-t TYPE] input_dir output_dir
@@ -176,10 +179,10 @@ python crop_image-mask.py [-h] [-x WIDTH] [-y HEIGHT] [-n NUM] [-t TYPE] input_d
 #   -t TYPE     train or val or test. Default is train.
 ```
 
-基本的には`mask_to_coco.py`でのディレクトリ構造であることを仮定している．
+It assumes a directory structure similar to `mask_to_coco.py`.
 
 ### `./tools/crop_image-mask_resize.py`
-画像とマスク画像（各オブジェクトごとに色分けされたマスク画像）のディレクトリからそれぞれのクロップ画像を生成するコード． 生成されたクロップ画像は指定された画像サイズにリサイズされる． **花のCT画像に対応するため，特定の処理が入っており，他のデータを扱う際には変更の必要がある．**
+This script generates cropped images from directories of images and mask images (mask images color-coded for each object). The cropped images produced are resized to a specified image size. **It includes specific processes for flower CT images, requiring modifications when dealing with other data types.**
 
 ```bash
 python crop_image-mask_resize.py [-h] [--crop-x CROP_WIDTH] [--crop-y CROP_HEIGHT] [--resize-x RESIZE_WIDTH] [--resize-y RESIZE_HEIGHT] [-n NUM] [-t TYPE] input_dir output_dir
@@ -200,11 +203,10 @@ python crop_image-mask_resize.py [-h] [--crop-x CROP_WIDTH] [--crop-y CROP_HEIGH
 #   -t TYPE               train or val or test. Default is train.
 ```
 
-基本的には`mask_to_coco.py`でのディレクトリ構造であることを仮定している．
+It assumes a directory structure similar to `mask_to_coco.py`.
 
 ### `./tools/crop_rotate.py`
-
-画像とマスク画像（各オブジェクトごとに色分けされたマスク画像）のディレクトリからそれぞれのクロップ画像を生成するコード． このコードは回転させながら横長の長方形のように画像を切り出す．前処理として，指定された回転の中心座標が画像中心となるように平行移動をしている． **花のCT画像に対応するため，特定の処理が入っており，他のデータを扱う際には変更の必要がある．**
+Generates cropped images from directories of images and mask images (mask images color-coded for each object), cutting out images like a horizontal rectangle while rotating. As preprocessing, it translates so that the specified rotation center coordinates become the center of the image. **Contains specific processes for flower CT images, requiring modifications when handling other data types.**
 
 ```bash
 python crop_rotate.py [-h] [--crop-w WIDTH] [--crop-h HEIGHT] [--step STEP] [--type TYPE] [--rotate-x CENTER_X] [--rotate-y CENTER_Y] input_dir output_dir
@@ -223,14 +225,13 @@ python crop_rotate.py [-h] [--crop-w WIDTH] [--crop-h HEIGHT] [--step STEP] [--t
 #   --rotate-y CENTER_Y  Y-coordinate of the rotation center. Default is 435.
 ```
 
-基本的には`mask_to_coco.py`でのディレクトリ構造であることを仮定している．
+Assumes a directory structure similar to `mask_to_coco.py`.
 
 ### `./tools/dataset_mean-std_calc.py`
-
-データセットの平均値と標準偏差を求めるコード．
+Code to calculate the mean and standard deviation of the dataset.
 
 > [!NOTE]
-> PyTorchが使える環境が必要である．また，正確かどうかの確認ができていないため注意が必要．
+> Requires an environment where PyTorch is available. Caution is advised as its accuracy has not been verified.
 
 ```bash
 python dataset_mean-std_calc.py [-h] dir
@@ -243,12 +244,10 @@ python dataset_mean-std_calc.py [-h] dir
 ```
 
 ### `./tools/RandAugment.py`
-
-データ拡張手法である[RandAugment](https://proceedings.neurips.cc/paper/2020/hash/d85b63ef0ccb114d0a3bb7b7d808028f-Abstract.html)のコード．
+Code for the data augmentation method, [RandAugment](https://proceedings.neurips.cc/paper/2020/hash/d85b63ef0ccb114d0a3bb7b7d808028f-Abstract.html). 
 
 > [!NOTE]
-> データ拡張方法の選択や画像の取り扱いなど，変更の必要がある．
-
+> Changes are necessary for the selection of data augmentation methods and the handling of images.
 
 ```bash
 python RandAugment.py [-h] [-o OUTPUT_DIR] [-n N] [-m M] [-a NUM] input_dir
@@ -266,7 +265,7 @@ python RandAugment.py [-h] [-o OUTPUT_DIR] [-n N] [-m M] [-a NUM] input_dir
 #                         Number of augmentations. Default is 100.
 ```
 
-## 参考サイト
+## Reference Sites
 - [自前のMask画像からCOCO format jsonを作成](https://salt22g.hatenablog.jp/entry/2020/12/20/210419)
 - [COCO Formatの作り方](https://qiita.com/harmegiddo/items/da131ae5bcddbbbde41f)
 - [how to calculate “img_norm_cfg” for custom dataset #354](https://github.com/open-mmlab/mmdetection/issues/354)

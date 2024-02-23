@@ -6,7 +6,7 @@
 > This README has been translated from the Japanese version by ChatGPT. Please be cautious as the translation may contain inaccuracies.
 
 ## Overview
-This repository is designed for creating COCO format datasets (JSON files) from instance segmentation mask images colored for each object, excluding the background.
+This repository is designed to generate COCO format datasets (JSON files) from mask images annotated for single-class instance segmentation. In these mask images, each object within the image, excluding the background, is marked with a mask of a distinct color.
 
 ## Directory Structure
 ```

@@ -1,43 +1,87 @@
-import json
-import collections as cl
-import numpy as np
+"""
+File Name: mask_coco_coco.py
+Description: 
+    - This script is designed to create a COCO-format dataset from images and their
+      corresponding mask files for instance segmentation tasks.
+    - It generates a COCO format dataset (JSON file) from mask images annotated 
+      for instance segmentation of a single class.
+    - Editing info, licenses, categories required for COCO format in 
+      ./config/coco_config.py is necessary.
+    - The output segmentation format will be in polygons.
 
-import cv2
-import glob
+Author: Yuki Naka
+Created Date: 2023-10-04
+Last Modified: 2024-03-12
+
+Usage:
+    python mask_to_coco.py <dataset> --type [train|val|test] --name [output JSON file name]
+
+    <dataset>:
+        The base directory path of the dataset where the images and masks are stored.
+    --type [train|val|test]: 
+        Specifies the dataset type. It can be 'train', 'val', or 'test'. Default is 'train'.
+    --name [output JSON file name]: 
+        Specifies the name of the output JSON file for COCO annotations. 
+        The default is auto-generated based on the type, following the pattern '[TYPE]_annotations.json'.
+
+Dependencies:
+    - Python 3.x, numpy, OpenCV (cv2), tqdm
+
+    Additional configuration files:
+    - config/coco_config.py: Contains settings for the COCO dataset.
+    - utils/tools.py: Contains additional tools required for dataset creation.
+
+License: MIT License
+"""
+
+# Standard Libraries
+import json
 import sys
 import os
+import glob
+import argparse
+import collections as cl
+
+# Data Handling
+import numpy as np
+
+# Image Processing
+import cv2
+
+# Utility
 from tqdm import tqdm
 
-import argparse
-# config/coco_config.pyで指定
+# Specified in config/coco_config.py
 from config.coco_config import info, licenses, images, categories
 from utils.tools import background_del, assign_cluster_number
 
-def get_args():
-    # 準備
-    parser = argparse.ArgumentParser(
-        description="Creating a COCO-format dataset from mask images for instance segmentation."
-    )
-
-    # 標準入力以外の場合
-    parser = argparse.ArgumentParser()
+def parse_args():
     
-    # COCOフォーマットに変換する画像が含まれているディレクトリの指定
-    parser.add_argument("dir", type=str, help="The base directory path of the dataset.")
+    parser = argparse.ArgumentParser(
+        description="Create a COCO format dataset from mask images for instance segmentation "
+                    "(single class). The output segmentation format will be in polygons."
+    )
+    
+    # Specifying the directory that contains the images to be converted to COCO format.
+    parser.add_argument("dataset", type=str, help="The base directory path of the dataset.")
     
     # train or val or test
-    parser.add_argument("-t", "--type", dest="type", type=str, default='train', help="train or val or test. Default is train.")
+    parser.add_argument(
+        "--type", 
+        type=str, 
+        default='train', 
+        help="train or val or test. Default is train.")
     
-    # jsonファイル名の指定
-    parser.add_argument("-n", "--name", dest="name", type=str, default='auto', help="Specify the JSON file name. The default is '[TYPE]_annotations.json'.")
+    # Specifying the name of the JSON file.
+    parser.add_argument(
+        "--name",
+        type=str, 
+        default='auto', 
+        help="Specify the JSON file name. The default is '[TYPE]_annotations.json'.")
     
     args = parser.parse_args()
-    
-    dir_base   = args.dir
-    input_type = args.type
-    json_name  = args.name
 
-    return dir_base, input_type, json_name
+    return args
 
 def annotations(mask_path):
     tmps = []
@@ -57,8 +101,8 @@ def annotations(mask_path):
             tmp = cl.OrderedDict()
 
             cluster_temp = (np.where(cluster == c, 255, 0)).astype("u1")
-        
-            # 輪郭抽出(CHAIN_APPROX_TC89_L1: 輪郭の座標を直線で近似できる部分の輪郭の点を省略)
+
+            # Contour extraction (CHAIN_APPROX_TC89_L1: Omits contour points that can be approximated by a straight line for parts of the contour)
             contours, _ = cv2.findContours(cluster_temp, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_TC89_L1)
             segmentation_list = []
 
@@ -86,14 +130,16 @@ def annotations(mask_path):
     
     return tmps
 
-def main(dir_base, input_type, json_name):
+def main():
 
-    img_path = os.path.join(dir_base, "images", input_type)
-    mask_path = os.path.join(dir_base, "masks", input_type)
-    if(json_name == "auto"):
-        json_path = os.path.join(dir_base, input_type + "_annotations.json")
+    args = parse_args()
+
+    img_path = os.path.join(args.dataset, "images", args.type)
+    mask_path = os.path.join(args.dataset, "masks", args.type)
+    if(args.name == "auto"):
+        json_path = os.path.join(args.dataset, args.type + "_annotations.json")
     else:
-        json_path = os.path.join(dir_base, json_name)
+        json_path = os.path.join(args.dataset, args.name)
     
     query_list = ["info", "licenses", "images", "annotations", "categories", "segment_info"]
     js = {
@@ -132,5 +178,4 @@ def main(dir_base, input_type, json_name):
     json.dump(js,fw,indent=2)
 
 if __name__=='__main__':
-    dir_base, input_type, json_name = get_args()
-    main(dir_base, input_type, json_name)
+    main()

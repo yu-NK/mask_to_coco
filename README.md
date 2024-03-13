@@ -192,27 +192,29 @@ python crop_dataset.py [-h] [-x WIDTH] [-y HEIGHT] [-n NUM] [-t TYPE]
 出力は指定がなければ，`./out/crop_dataset/`以下に出力される．
 
 #### `./tools/crop_image-mask.py`
-画像とマスク画像（各オブジェクトごとに色分けされたマスク画像）のディレクトリからそれぞれのクロップ画像を生成するコード． **花のCT画像に対応するため，特定の処理が入っており，他のデータを扱う際には変更の必要がある．**
+画像とマスク画像（各オブジェクトごとに色分けされたマスク画像）のディレクトリからそれぞれのクロップ画像をランダムに生成するコード． **花のCT画像に対応するため，特定の処理が入っており，他のデータを扱う際には変更の必要がある．**
+
+<img src="/assets/crop_image-mask_ja.jpg" width="90%" />
 
 ```bash
-python crop_image-mask.py [-h] [-x WIDTH] [-y HEIGHT] [-n NUM] [-t TYPE] input_dir output_dir
+python crop_image-mask.py [-h] [--type TYPE] [--crop-n CROP_NUM] [--crop-w CROP_WIDTH] [--crop-h CROP_HEIGHT] dataset output
 
 # positional arguments:
-#   input_dir   The base directory path of images and masks.
-#   output_dir  Storage location for cropped images and masks
+#   dataset               The base directory path of the dataset.
+#   output                Storage location for cropped images and masks
 
-# optional arguments:
-#   -h, --help  show this help message and exit
-#   -x WIDTH    width of the cropped image. Default is 150.
-#   -y HEIGHT   height of the cropped image. Default is 150.
-#   -n NUM      Number of Crop Image Generations per Image. Default is 10.
-#   -t TYPE     train or val or test. Default is train.
+# options:
+#   -h, --help            show this help message and exit
+#   --type TYPE           The dataset type: train, val, or test. Defaults to 'train'.
+#   --crop-n CROP_NUM     Number of Crop Image Generations per Image. Default is 10.
+#   --crop-w CROP_WIDTH   width of the cropped image. Default is 150.
+#   --crop-h CROP_HEIGHT  height of the cropped image. Default is 150.
 ```
 
 基本的には`mask_to_coco.py`でのディレクトリ構造であることを仮定している．
 
 #### `./tools/crop_image-mask_resize.py`
-画像とマスク画像（各オブジェクトごとに色分けされたマスク画像）のディレクトリからそれぞれのクロップ画像を生成するコード． 生成されたクロップ画像は指定された画像サイズにリサイズされる． **花のCT画像に対応するため，特定の処理が入っており，他のデータを扱う際には変更の必要がある．**
+画像とマスク画像（各オブジェクトごとに色分けされたマスク画像）のディレクトリからそれぞれのクロップ画像をランダムに生成するコード． 生成されたクロップ画像は指定された画像サイズにリサイズされる． **花のCT画像に対応するため，特定の処理が入っており，他のデータを扱う際には変更の必要がある．**
 
 <img src="/assets/crop_image-mask_resize_ja.jpg" width="90%" />
 
@@ -238,6 +240,8 @@ python crop-resize.py [-h] [--type TYPE] [--crop-n CROP_NUM] [--crop-w CROP_WIDT
 #### `./tools/crop_rotate.py`
 
 画像とマスク画像（各オブジェクトごとに色分けされたマスク画像）のディレクトリからそれぞれのクロップ画像を生成するコード． このコードは回転させながら横長の長方形のように画像を切り出す．前処理として，指定された回転の中心座標が画像中心となるように平行移動をしている． **花のCT画像に対応するため，特定の処理が入っており，他のデータを扱う際には変更の必要がある．**
+
+<img src="/assets/crop_rotate_ja.jpg" width="90%" />
 
 ```bash
 python crop_rotate.py [-h] [--crop-w CROP_WIDTH] [--crop-h CROP_HEIGHT] [--step ANGLE_STEP] [--type TYPE] [--rot-x ROTATE_X] [--rot-y ROTATE_Y] dataset output
@@ -268,10 +272,10 @@ python crop_rotate.py [-h] [--crop-w CROP_WIDTH] [--crop-h CROP_HEIGHT] [--step 
 > - 正確かどうかの確認ができていないため注意が必要．
 
 ```bash
-python dataset_mean-std_calc.py [-h] dir
+python dataset_mean-std_calc.py [-h] img-dir
 
 # positional arguments:
-#   dir         Directory to store images of the dataset.
+#   img-dir     Directory to store images of the dataset.
 
 # options:
 #  -h, --help  show this help message and exit
@@ -286,19 +290,17 @@ python dataset_mean-std_calc.py [-h] dir
 
 
 ```bash
-python RandAugment.py [-h] [-o OUTPUT_DIR] [-n N] [-m M] [-a NUM] input_dir
+python RandAugment.py [-h] [-n N] [-m M] [--aug-num AUG_NUM] dataset output
 
 # positional arguments:
-#   input_dir             Directory containing images and masks for data augmentation.
+#   dataset            The base directory path of the dataset.
+#   output             Directory path for the output of augmented images and masks.
 
-# optional arguments:
-#   -h, --help            show this help message and exit
-#   -o OUTPUT_DIR, --output-dir OUTPUT_DIR
-#                         Output directory of images and masks after data augmentation. Default is ./out
-#   -n N, --pram-n N      The parameter 'n' in RandAugment. Dafault is 4.
-#   -m M, --pram-m M      The parameter 'm' in RandAugment. Dafault is 10
-#   -a NUM, --aug-num NUM
-#                         Number of augmentations. Default is 100.
+# options:
+#   -h, --help         show this help message and exit
+#   -n N               The parameter 'n' in RandAugment. Dafault is 4.
+#   -m M               The parameter 'm' in RandAugment. Dafault is 10
+#   --aug-num AUG_NUM  Number of augmentations. Default is 100.
 ```
 
 ## 参考サイト

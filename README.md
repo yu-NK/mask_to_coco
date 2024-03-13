@@ -92,12 +92,12 @@ mask_to_coco
 python mask_to_coco.py [-h] [-t TYPE] [-n NAME] dataset
 
 # positional arguments:
-#   dataset               The base directory path of the dataset.
+#   dataset      データセットのベースディレクトリパス
 
 # optional arguments:
-#   -h, --help   show this help message and exit
-#   --type TYPE  train or val or test. Default is train.
-#   --name NAME  Specify the JSON file name. The default is '[TYPE]_annotations.json'.
+#   -h, --help   ヘルプメッセージの表示と終了
+#   --type TYPE  データセットタイプ：train，val，またはtest．デフォルトは 'train'
+#   --name NAME  JSONファイル名を指定．デフォルトは '[TYPE]_annotations.json'．
 ```
 
 #### `./mask_to_coco_parallel_polygon.py`
@@ -110,13 +110,13 @@ python mask_to_coco.py [-h] [-t TYPE] [-n NAME] dataset
 python mask_to_coco_parallel_polygon.py [-h] [--type TYPE] [--name NAME] [--proc-num PROC_NUM]
 
 # positional arguments:
-#   datset               The base directory path of the dataset.
+#   dataset              データセットのベースディレクトリパス
 
 # optional arguments:
-#   -h, --help           show this help message and exit
-#   --type TYPE          The dataset type: train, val, or test. Defaults to 'train'.
-#   --name NAME          The JSON file name for COCO annotations. Defaults to '[TYPE]_annotations.json'.
-#   --proc-num PROC_NUM  The number of cores used for parallelization. Defaults to the system's physical core count.
+#   -h, --help           ヘルプメッセージの表示と終了
+#   --type TYPE          データセットタイプ：train，val，またはtest．デフォルトは 'train'
+#   --name NAME          COCOアノテーション用のJSONファイル名．デフォルトは '[TYPE]_annotations.json'
+#   --proc-num PROC_NUM  並列処理に使用するコア数．デフォルトはシステムの物理コア数
 ```
 
 #### `./mask_to_coco_parallel_segtype.py`**（推奨）**
@@ -133,14 +133,14 @@ python mask_to_coco_parallel_polygon.py [-h] [--type TYPE] [--name NAME] [--proc
 python mask_to_coco_parallel_segtype.py [-h] [--type TYPE] [--ply] [--name NAME] [--proc-num PROC_NUM] dataset
 
 # positional arguments:
-#   dataset              The base directory path for the dataset.
+#   dataset              データセットのベースディレクトリパス
 
 # options:
-#   -h, --help           show this help message and exit
-#   --type TYPE          The dataset type: train, val, or test. Defaults to 'train'.
-#   --ply                Outputs in polygon format if selected. Defaults to RLE format.
-#   --name NAME          The JSON file name for COCO annotations. Defaults to '[TYPE]_annotations.json'.
-#   --proc-num PROC_NUM  The number of cores used for parallelization. Defaults to the system's physical core count.
+#   -h, --help           ヘルプメッセージの表示と終了
+#   --type TYPE          データセットタイプ：train，val，test．デフォルトは 'train'
+#   --ply                選択された場合，Polygon形式で出力．デフォルトはRLE形式
+#   --name NAME          COCOアノテーションのためのJSONファイル名．デフォルトは '[TYPE]_annotations.json'
+#   --proc-num PROC_NUM  並列処理に使用するコアの数．デフォルトはシステムの物理コア数
 ```
 
 ### 可視化（`visualization/`）
@@ -152,12 +152,12 @@ COCOフォーマットのデータセットを可視化するためのコード�
 python visualization_mask.py [-h] [--type TYPE] [--output OUTPUT] dataset
 
 # positional arguments:
-#   dataset          The base directory path of the dataset.
+#   dataset          データセットのベースディレクトリパス
 
 # options:
-#   -h, --help       show this help message and exit
-#   --type TYPE      The dataset type: train, val, or test. Defaults to 'train'.
-#   --output OUTPUT  The output directory. Default is ./out
+#   -h, --help       ヘルプメッセージの表示と終了
+#   --type TYPE      データセットタイプ：train，val，test．デフォルトは 'train'
+#   --output OUTPUT  出力ディレクトリ．デフォルトは ./out
 ```
 
 [COCO形式のデータセット作成](#coco形式のデータセット作成)で説明したディレクトリ構造（`masks/`を除く）にする必要がある．出力は指定がなければ，`./out`以下に出力される．
@@ -174,19 +174,19 @@ python visualization_mask.py [-h] [--type TYPE] [--output OUTPUT] dataset
 python crop_dataset.py [-h] [-x WIDTH] [-y HEIGHT] [-n NUM] [-t TYPE]
 
 # positional arguments:
-#   dataset               The base directory path of the dataset.
+#   dataset               データセットのベースディレクトリパス
 
 # options:
-#   -h, --help            show this help message and exit
-#   -t TYPE, --type TYPE  The dataset type: train, val, or test. Defaults to 'train'.
+#   -h, --help            ヘルプメッセージの表示と終了
+#   -t TYPE, --type TYPE  データセットタイプ：train，val，test．デフォルトは 'train'
 #   -x CROP_WIDTH, --crop-width CROP_WIDTH
-#                         width of the cropped image. Default is 150.
+#                         切り出し画像の幅．デフォルトは 150
 #   -y CROP_HEIGHT, --crop-height CROP_HEIGHT
-#                         height of the cropped image. Default is 150.
+#                         切り出し画像の高さ．デフォルトは 150
 #   -n CROP_NUM, --crop-num CROP_NUM
-#                         Number of Crop Image Generations per Image. Default is 10.
+#                         画像ごとの切り出し回数．デフォルトは 10
 #   -o DIR_OUT, --output DIR_OUT
-#                         The output directory. Default is ./out/crop_dataset
+#                         出力ディレクトリ．デフォルトは ./out/crop_dataset
 ```
 
 出力は指定がなければ，`./out/crop_dataset/`以下に出力される．
@@ -194,21 +194,21 @@ python crop_dataset.py [-h] [-x WIDTH] [-y HEIGHT] [-n NUM] [-t TYPE]
 #### `./tools/crop_image-mask.py`
 画像とマスク画像（各オブジェクトごとに色分けされたマスク画像）のディレクトリからそれぞれのクロップ画像をランダムに生成するコード． **花のCT画像に対応するため，特定の処理が入っており，他のデータを扱う際には変更の必要がある．**
 
-<img src="/assets/crop_image-mask_ja.jpg" width="90%" />
+<img src="/assets/crop_image-mask_ja.jpg" width="75%" />
 
 ```bash
 python crop_image-mask.py [-h] [--type TYPE] [--crop-n CROP_NUM] [--crop-w CROP_WIDTH] [--crop-h CROP_HEIGHT] dataset output
 
 # positional arguments:
-#   dataset               The base directory path of the dataset.
-#   output                Storage location for cropped images and masks
+#   dataset               データセットのベースディレクトリパス
+#   output                切り出した画像とマスクの保存先
 
 # options:
-#   -h, --help            show this help message and exit
-#   --type TYPE           The dataset type: train, val, or test. Defaults to 'train'.
-#   --crop-n CROP_NUM     Number of Crop Image Generations per Image. Default is 10.
-#   --crop-w CROP_WIDTH   width of the cropped image. Default is 150.
-#   --crop-h CROP_HEIGHT  height of the cropped image. Default is 150.
+#   -h, --help            ヘルプメッセージの表示と終了
+#   --type TYPE           データセットタイプ：train，val，test．デフォルトは 'train'
+#   --crop-n CROP_NUM     画像ごとの切り出し回数．デフォルトは 10
+#   --crop-w CROP_WIDTH   切り出し画像の幅．デフォルトは 150
+#   --crop-h CROP_HEIGHT  切り出し画像の高さ．デフォルトは 150
 ```
 
 基本的には`mask_to_coco.py`でのディレクトリ構造であることを仮定している．
@@ -222,19 +222,19 @@ python crop_image-mask.py [-h] [--type TYPE] [--crop-n CROP_NUM] [--crop-w CROP_
 python crop-resize.py [-h] [--type TYPE] [--crop-n CROP_NUM] [--crop-w CROP_WIDTH] [--crop-h CROP_HEIGHT] [--resize-w RESIZE_WIDTH] [--resize-h RESIZE_HEIGHT] dataset output
 
 # positional arguments:
-#   dataset               The base directory path of the dataset.
-#   output                Storage location for cropped images and masks
+#   dataset               データセットのベースディレクトリパス
+#   output                切り出した画像とマスクの保存先
 
 # options:
-#   -h, --help            show this help message and exit
-#   --type TYPE           The dataset type: train, val, or test. Defaults to 'train'.
-#   --crop-n CROP_NUM     Number of Crop Image Generations per Image. Default is 10.
-#   --crop-w CROP_WIDTH   width of the cropped image. Default is 150.
-#   --crop-h CROP_HEIGHT  height of the cropped image. Default is 150.
+#   -h, --help            ヘルプメッセージの表示と終了
+#   --type TYPE           データセットタイプ：train，val，またはtest．デフォルトは 'train'
+#   --crop-n CROP_NUM     画像ごとの切り出し回数．デフォルトは 10
+#   --crop-w CROP_WIDTH   切り出し画像の幅．デフォルトは 150
+#   --crop-h CROP_HEIGHT  切り出し画像の高さ．デフォルトは 150
 #   --resize-w RESIZE_WIDTH
-#                         width after resizing. Default is 150.
+#                         リサイズ後の幅．デフォルトは 150
 #   --resize-h RESIZE_HEIGHT
-#                         height after resizing. Default is 150.
+#                         リサイズ後の高さ．デフォルトは 150
 ```
 
 #### `./tools/crop_rotate.py`
@@ -247,17 +247,17 @@ python crop-resize.py [-h] [--type TYPE] [--crop-n CROP_NUM] [--crop-w CROP_WIDT
 python crop_rotate.py [-h] [--crop-w CROP_WIDTH] [--crop-h CROP_HEIGHT] [--step ANGLE_STEP] [--type TYPE] [--rot-x ROTATE_X] [--rot-y ROTATE_Y] dataset output
 
 # positional arguments:
-#   dataset               The base directory path of the dataset.
-#   output                Storage location for cropped images and masks
+#   dataset               データセットのベースディレクトリパス
+#   output                切り出した画像とマスクの保存先
 
 # options:
-#   -h, --help            show this help message and exit
-#   --crop-w CROP_WIDTH   width of the cropped image. Default is 900.
-#   --crop-h CROP_HEIGHT  height of the cropped image. Default is 32.
-#   --step ANGLE_STEP     angle of rotation. Default is 1.
-#   --type TYPE           The dataset type: train, val, or test. Defaults to 'train'.
-#   --rot-x ROTATE_X      X-coordinate of the rotation center. Default is 421.
-#   --rot-y ROTATE_Y      Y-coordinate of the rotation center. Default is 435.
+#   -h, --help            ヘルプメッセージの表示と終了
+#   --crop-w CROP_WIDTH   切り出し画像の幅．デフォルトは 900
+#   --crop-h CROP_HEIGHT  切り出し画像の高さ．デフォルトは 32
+#   --step ANGLE_STEP     回転角度．デフォルトは 1
+#   --type TYPE           データセットタイプ：train，val，test．デフォルトは 'train'
+#   --rot-x ROTATE_X      回転中心のX座標．デフォルトは 421
+#   --rot-y ROTATE_Y      回転中心のY座標．デフォルトは 435
 ```
 
 > [!NOTE]
@@ -275,10 +275,10 @@ python crop_rotate.py [-h] [--crop-w CROP_WIDTH] [--crop-h CROP_HEIGHT] [--step 
 python dataset_mean-std_calc.py [-h] img-dir
 
 # positional arguments:
-#   img-dir     Directory to store images of the dataset.
+#   img-dir    データセットの画像を保存するディレクトリパス
 
 # options:
-#  -h, --help  show this help message and exit
+#  -h, --help  ヘルプメッセージの表示と終了
 ```
 
 #### `./tools/RandAugment.py`
@@ -293,14 +293,14 @@ python dataset_mean-std_calc.py [-h] img-dir
 python RandAugment.py [-h] [-n N] [-m M] [--aug-num AUG_NUM] dataset output
 
 # positional arguments:
-#   dataset            The base directory path of the dataset.
-#   output             Directory path for the output of augmented images and masks.
+#   dataset            データセットのベースディレクトリパス
+#   output             データ拡張された画像とマスクの出力ディレクトリパス
 
 # options:
-#   -h, --help         show this help message and exit
-#   -n N               The parameter 'n' in RandAugment. Dafault is 4.
-#   -m M               The parameter 'm' in RandAugment. Dafault is 10
-#   --aug-num AUG_NUM  Number of augmentations. Default is 100.
+#   -h, --help         ヘルプメッセージの表示と終了
+#   -n N               RandAugmentでのパラメータ 'n'．デフォルトは 4
+#   -m M               RandAugmentでのパラメータ 'm'．デフォルトは 10
+#   --aug-num AUG_NUM  拡張回数．デフォルトは 100
 ```
 
 ## 参考サイト

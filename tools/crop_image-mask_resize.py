@@ -42,7 +42,6 @@ License: MIT License
 """
 
 # Standard Libraries
-import json
 import sys
 import os
 import glob
@@ -166,7 +165,7 @@ def main():
                     x2 = x1 + args.crop_width
                     y2 = y1 + args.crop_height
 
-                    # # Save the cropped image
+                    # Save the cropped image
                     cropped_image = image.crop((x1, y1, x2, y2))
                     cropped_mask  = mask.crop((x1, y1, x2, y2))
 

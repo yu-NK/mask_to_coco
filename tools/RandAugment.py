@@ -1,50 +1,92 @@
-# The original code in this file is quoted from RandAugment/augmentations.py in pytorch-randaugment by ildoonet and is provided under the MIT License.
+"""
+File Name: RandAugment.py
+Description: 
+    - This code performs data augmentation using RandAugment.
+    - The original code in this file is quoted from RandAugment/augmentations.py in pytorch-randaugment 
+      by ildoonet and is provided under the MIT License.
 
-# Copyright (c) 2019 Ildoo Kim
-# Released under the MIT license
-# https://github.com/ildoonet/pytorch-randaugment/blob/master/RandAugment/augmentations.py
+        Copyright (c) 2019 Ildoo Kim
+        Released under the MIT license
+        https://github.com/ildoonet/pytorch-randaugment/blob/master/RandAugment/augmentations.py
 
-# I have modified the code to perform similar data augmentation on color-segmented mask images and original images for instance segmentation. There are parts that are specialized for specific tasks.
+    - I have modified the code to perform similar data augmentation on color-segmented mask images 
+      and original images for instance segmentation. There are parts that are specialized for specific tasks.
 
+Created Date: 2023-10-22
+Last Modified: 2024-03-13
+
+Usage:
+    python data_augmentation_rand_augment.py <dataset> <output> 
+        -n [n value] -m [m value] --aug-num [number of augmentations]
+
+    <dataset>: 
+        The base directory path of the dataset containing the original images and masks.
+    <output>: 
+        Directory path for the output of augmented images and masks.
+    -n [n value]: 
+        The parameter 'n' in RandAugment. Default is 4.
+    -m [m value]: 
+        The parameter 'm' in RandAugment. Default is 10.
+    --aug-num [number of augmentations]: 
+        Number of augmentations to apply to each image in the dataset. Default is 100.
+
+Dependencies:
+    - Image Processing: PIL, PIL.ImageOps, PIL.ImageEnhance, PIL.ImageDraw
+    - Numerical Operations: numpy
+    - Utility: tqdm
+"""
+
+# Standard Libraries
 import random
-
-import PIL, PIL.ImageOps, PIL.ImageEnhance, PIL.ImageDraw
-import numpy as np
-import torch
-from PIL import Image
-
 import argparse
 import glob
 import os
 
+# Image Processing
+import PIL, PIL.ImageOps, PIL.ImageEnhance, PIL.ImageDraw
+from PIL import Image
+
+# Numerical Operations
+import numpy as np
+
+# Deep Learning
+#import torch
+
+# Utility
 from tqdm import tqdm
 
-def get_args():
-    # 準備
-    parser = argparse.ArgumentParser(
-        description="RandAugment: images and masks"
-    )
 
-    # 標準入力以外の場合
-    parser = argparse.ArgumentParser()
+def parse_args():
+
+    parser = argparse.ArgumentParser(
+        description="This code performs data augmentation using RandAugment."
+    )
     
-    # クロップサイズを設定
-    parser.add_argument("input_dir", type=str,  help="Directory containing images and masks for data augmentation.")
-    parser.add_argument("-o", "--output-dir", dest="output_dir", default="./out", type=str, help="Output directory of images and masks after data augmentation. Default is ./out")
-    parser.add_argument("-n", "--pram-n", dest="N", type=int, default=4,  help="The parameter 'n' in RandAugment. Dafault is 4.")
-    parser.add_argument("-m", "--pram-m", dest="M", type=int, default=10, help="The parameter 'm' in RandAugment. Dafault is 10")
-    parser.add_argument("-a", "--aug-num", dest="num", type=int, default=100, help="Number of augmentations. Default is 100.")
+    parser.add_argument("dataset", type=str, help="The base directory path of the dataset.")
+    parser.add_argument("output", type=str, help="Directory path for the output of augmented images and masks.")
+
+    # Set Prameters
+    parser.add_argument(
+        "-n", 
+        type=int, 
+        default=4, 
+        help="The parameter 'n' in RandAugment. Dafault is 4.")
+    
+    parser.add_argument(
+        "-m", 
+        type=int, 
+        default=10, 
+        help="The parameter 'm' in RandAugment. Dafault is 10")
+    
+    parser.add_argument(
+        "--aug-num", 
+        type=int, 
+        default=100, 
+        help="Number of augmentations. Default is 100.")
     
     args = parser.parse_args()
-
-    # 引数から画像番号
-    dir_input  = args.input_dir
-    dir_output = args.output_dir
-    n = args.N
-    m = args.M
-    num = args.num
     
-    return dir_input, dir_output, n, m, num
+    return args
 
 def ShearX(img, mask, v):  # [-0.3, 0.3]
     assert -0.3 <= v <= 0.3
@@ -175,9 +217,9 @@ def CutoutAbs(img, mask, v):  # [0, 60] => percentage: [0, 0.2]
     y1 = min(h, y0 + v)
 
     xy = (x0, y0, x1, y1)
-    # CT画像のためグレースケール用を用意
+    # Prepare for grayscale, specifically for CT images.
     color_gray = (32,)
-    # 基本はcolor_rgbを使う
+    # The default is to use color_rgb.
     color_rgb  = (0, 0, 0)
     
     img = img.copy()
@@ -247,7 +289,7 @@ def augment_list():  # 16 oeprations and their ranges
     return l
 
 """
-# これを使わなければPyTorchの環境は不要
+# If not using this, a PyTorch environment is not necessary.
 class Lighting(object):
     #Lighting noise(AlexNet - style PCA - based noise)
 
@@ -310,36 +352,38 @@ class RandAugment:
 """
     
     
-def main(dir_input, dir_output, n, m, num):
+def main():
+
+    args = parse_args()
     
-    DIR_OUTPUT_IMAGE = os.path.join(dir_output, "images/train")
-    DIR_OUTPUT_MASK  = os.path.join(dir_output, "masks/train")
+    DIR_OUTPUT_IMAGE = os.path.join(args.output, "images/train")
+    DIR_OUTPUT_MASK  = os.path.join(args.output, "masks/train")
     
     os.makedirs(DIR_OUTPUT_IMAGE, exist_ok=True)
     os.makedirs(DIR_OUTPUT_MASK , exist_ok=True)
     
-    img_list  = sorted(glob.glob(os.path.join(dir_input, "images/train/*")))
-    mask_list = sorted(glob.glob(os.path.join(dir_input, "masks/train/*")))
+    img_list  = sorted(glob.glob(os.path.join(args.dataset, "images/train/*")))
+    mask_list = sorted(glob.glob(os.path.join(args.dataset, "masks/train/*")))
     
     for img_path, mask_path in tqdm(zip(img_list, mask_list), total=len(img_list), desc="Processing"):
         img_name  = os.path.splitext(os.path.basename(img_path))[0]
         mask_name = os.path.splitext(os.path.basename(mask_path))[0]
         
-        for i in tqdm(range(num), total=num, desc=f'Augmentation: {img_name}'):
-            #　CT画像はグレースケールのためグレースケールで読み込み（その他の画像の場合は変更する必要あり）
+        for i in tqdm(range(args.arg_num), total=args.arg_num, desc=f'Augmentation: {img_name}'):
+            #　Since CT images are in grayscale, they should be loaded as grayscale (changes are required for other types of images).
             img  = (Image.open(img_path)).convert('L')
             mask = (Image.open(mask_path)).convert('RGB')
             
-            ops = random.choices(augment_list(), k=n)
+            ops = random.choices(augment_list(), k=args.n)
             for op, minval, maxval in ops:
-                val = (float(m) / 30) * float(maxval - minval) + minval
+                val = (float(args.m) / 30) * float(maxval - minval) + minval
                 img, mask = op(img, mask, val)
                 
             # Pillow -> Numpy
             img_np  = np.array(img)
             mask_np = np.array(mask)
             
-            # アフィン変換などによりできた余白をランダムに輝度値の設定（CT画像に合うように）
+            # Fill the margins created by affine transformations with randomly set luminance values (to suit CT images).
             zero_positions = np.argwhere(img_np == 0)
             random_values = np.random.randint(27, 41, size=zero_positions.shape[0])
             img_np[zero_positions[:, 0], zero_positions[:, 1]] = random_values
@@ -350,9 +394,8 @@ def main(dir_input, dir_output, n, m, num):
             img_pil  = Image.fromarray(img_np)
             mask_pil = Image.fromarray(mask_np)
             
-            img_pil.save(os.path.join(dir_output, f'images/train/{img_name}_aug{i:03}.png'))
-            mask_pil.save(os.path.join(dir_output, f'masks/train/{img_name}_aug{i:03}.png'))
+            img_pil.save(os.path.join(args.output, f'images/train/{img_name}_aug{i:03}.png'))
+            mask_pil.save(os.path.join(args.output, f'masks/train/{img_name}_aug{i:03}.png'))
         
 if __name__ == "__main__":
-    dir_input, dir_output, n, m, num = get_args()
-    main(dir_input, dir_output, n, m, num)
+    main()

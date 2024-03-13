@@ -1,99 +1,181 @@
-import json
-import collections as cl
-import numpy as np
+"""
+File Name: mask_to_coco_parallel_segtype.py
+Description: 
+    - This script is designed to create a COCO-format dataset from images and their
+      corresponding mask files for instance segmentation tasks. (Parallelized version)
+    - It generates a COCO format dataset (JSON file) from mask images annotated 
+      for instance segmentation of a single class.
+    - Editing info, licenses, categories required for COCO format in 
+      ./config/coco_config.py is necessary.
+    - The format of the output segmentation part can be chosen between polygon and RLE (Run-Length Encoding) formats.
 
-import cv2
-import glob
+Author: Yuki Naka
+Created Date: 2024-02-18
+Last Modified: 2024-03-12
+
+Usage:
+    python mask_to_coco_parallel_segtype.py <dataset> --type [train|val|test] --ply --name [output JSON file name] --proc-num [number of cores]
+
+    <dataset>:
+        The base directory path of the dataset where the images and masks are stored.
+    --type [train|val|test]: 
+        Specifies the dataset type. It can be 'train', 'val', or 'test'. Default is 'train'.
+    --ply:
+        Outputs in polygon format if selected. Defaults to RLE format.
+        A choice between RLE and Polygon formats for the output segmentation annotations, with RLE as the default format.
+    --name [output JSON file name]: 
+        Specifies the name of the output JSON file for COCO annotations. 
+        The default is auto-generated based on the type, following the pattern '[TYPE]_annotations.json'.
+    --proc-num [number of cores]:
+        The number of cores used for parallelization. Defaults to the system's physical core count.
+
+Dependencies:
+    - Python 3.x, numpy, OpenCV (cv2), tqdm, pycocotools
+
+    Additional configuration files:
+    - config/coco_config.py: Contains settings for the COCO dataset.
+
+License: MIT License
+"""
+
+# Standard Libraries
+import json
 import sys
 import os
+import glob
+import argparse
+import collections as cl
+
+# Data Handling
+import numpy as np
+
+# Image Processing
+import cv2
+
+# Utility
 from tqdm import tqdm
 
-import argparse
-# config/coco_config.pyで指定
-from config.coco_config import info, licenses, images, categories
-
+# Parallel Processing
 import multiprocessing
 from concurrent.futures.process import ProcessPoolExecutor
+
+# COCO Format Handling
 import pycocotools.mask as mask
 
-def get_args():
-    # 準備
+# Specified in config/coco_config.py
+from config.coco_config import info, licenses, images, categories
+
+def parse_args():
     parser = argparse.ArgumentParser(
-        description="Create a dataset in COCO format from a mask image for instance segmentation (single class) with parallel processing. The format of segmentation can be chosen between RLE (Run-Length Encoding) or Polygon.　**Installation of pycocotools is required**"
+        description=("Create a dataset in COCO format from mask images for instance segmentation "
+                     "(single class) with parallel processing. Allows choosing between "
+                     "RLE (Run-Length Encoding) and Polygon format for segmentation. **Installation of pycocotools is required**")
+    )
+    
+    # Specify the directory containing images to be converted to COCO format
+    parser.add_argument("dataset", type=str, help="The base directory path for the dataset.")
+    
+    # Specify the dataset type (train, validation, or test)
+    parser.add_argument(
+        "--type",
+        type=str, 
+        default='train', 
+        help="The dataset type: train, val, or test. Defaults to 'train'."
     )
 
-    # 標準入力以外の場合
-    parser = argparse.ArgumentParser()
+    # Option for output in polygon format (default is RLE)
+    parser.add_argument(
+        "--ply", 
+        action='store_true',
+        help="Outputs in polygon format if selected. Defaults to RLE format."
+    )
     
-    # COCOフォーマットに変換する画像が含まれているディレクトリの指定
-    parser.add_argument("dir", type=str, help="The base directory path of the dataset.")
+    # Specify the JSON file name
+    parser.add_argument(
+        "--name",
+        type=str,
+        default='auto', 
+        help="The JSON file name for COCO annotations. Defaults to '[TYPE]_annotations.json'."
+    )
     
-    # train or val or test
-    parser.add_argument("-t", "--type", dest="type", type=str, default='train', help="train or val or test. Default is train.")
-
-    # RLE or Polygon
-    parser.add_argument("-f", "--format", dest="format", type=int, default=0, help="Selection between RLE format or Polygon format (0: RLE format, 1: Polygon format). The default is 0: RLE format.")
-    
-    # jsonファイル名の指定
-    parser.add_argument("-n", "--name", dest="name", type=str, default='auto', help="Specify the JSON file name. The default is '[TYPE]_annotations.json'.")
-    
-    # jsonファイル名の指定
-    parser.add_argument("-c", "--core", dest="core", type=int, default=multiprocessing.cpu_count(), help="The number of cores to be used for parallelization. The default is the number of physical cores in the system.")
-    num_processes = multiprocessing.cpu_count()
+    # Specify the number of cores for parallel processing
+    parser.add_argument(
+        "--proc-num", 
+        type=int, 
+        default=multiprocessing.cpu_count(), 
+        help="The number of cores used for parallelization. Defaults to the system's physical core count."
+    )
     
     args = parser.parse_args()
-    
-    dir_base   = args.dir
-    input_type = args.type
-    format = args.format
-    json_name  = args.name
-    
-    if(args.core > multiprocessing.cpu_count()):
-        num_processes = multiprocessing.cpu_count()
-    else:
-        num_processes = args.core
 
-    return dir_base, input_type, format, json_name, num_processes
+    return args
 
 def polygonFromMask(maskedArr):
-  # adapted from https://github.com/hazirbas/coco-json-converter/blob/master/generate_coco_json.py
-  contours, _ = cv2.findContours(maskedArr, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
-  segmentation = []
-  valid_poly = 0
-  for contour in contours:
-  # Valid polygons have >= 6 coordinates (3 points)
-     if contour.size >= 6:
-        segmentation.append(contour.astype(float).flatten().tolist())
-        valid_poly += 1
-  #if valid_poly == 0:
-     #raise ValueError
-  return segmentation
+    # adapted from https://github.com/hazirbas/coco-json-converter/blob/master/generate_coco_json.py
+    contours, _ = cv2.findContours(maskedArr, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+    segmentation = []
+    valid_poly = 0
+    for contour in contours:
+        # Valid polygons have >= 6 coordinates (3 points)
+        if contour.size >= 6:
+            segmentation.append(contour.astype(float).flatten().tolist())
+            valid_poly += 1
+    #if valid_poly == 0:
+        #raise ValueError
+    return segmentation
 
 def generate_unique_color_mask_opencv(image_path):
-    # OpenCVを使って画像を読み込む
+
+    """
+    Generates a mask array from an image, where each unique color is represented by a unique index in the mask. 
+    This function uses OpenCV to read the image and numpy to handle array operations. 
+    The resulting mask array can be used to identify and separate unique colors in the image.
+
+    Parameters:
+        image_path (str): The path to the image file.
+
+    Returns:
+        numpy.ndarray: An array where each pixel's value corresponds to the index of its color in the unique colors found in the image.
+    """
+
+    # Load the image using OpenCV
     image = cv2.imread(image_path)
     
-    # ユニークな色の集合を作成
+    # Create a set of unique colors
     unique_colors, unique_indices = np.unique(image.reshape(-1, 3), axis=0, return_inverse=True)
     
-    # ユニークな色のインデックスを使ってマスク配列を作成
+    # Use the unique color indices to create a mask array
     mask_array = unique_indices.reshape(image.shape[:2])
     
     return mask_array #, {tuple(color): idx for idx, color in enumerate(unique_colors)}
 
+
 def find_coordinates(binary_image):
-    # 画像内の対象ピクセル（例えば、値が1のピクセル）の座標を見つける
+
+    """
+    Finds the bounding box coordinates for a given binary image where the target objects are marked with non-zero values (e.g., 1 for foreground). 
+    This function calculates and returns the bounding box in the format [x_min, y_min, width, height], 
+    where (x_min, y_min) is the top-left coordinate of the bounding box, and 'width' and 'height' are the dimensions of the bounding box. 
+
+    Parameters:
+        binary_image (numpy.ndarray): A binary image array where target pixels have a non-zero value.
+
+    Returns:
+        list: The bounding box coordinates and dimensions [x_min, y_min, width, height], all as float values.
+    """
+
+    # Find the coordinates of the target pixels (e.g., pixels with value 1) in the image
     coordinates = np.argwhere(binary_image > 0)
     
-    # 左上（最小）と右下（最大）の座標を計算する
+    # Calculate the coordinates of the top-left (minimum) and bottom-right (maximum) points
     top_left = coordinates.min(axis=0)
     bottom_right = coordinates.max(axis=0)
     
-    # 座標を抽出
+    # Extract coordinates
     top_left_y, top_left_x = top_left
     bottom_right_y, bottom_right_x = bottom_right
 
-    # 幅と高さを計算
+    # Calculate width and height
     width = bottom_right_x - top_left_x
     height = bottom_right_y - top_left_y
 
@@ -114,9 +196,8 @@ def annotations(i, file, format):
     for c in range(1,cluster.max()+1):
         cluster_temp = (np.where(cluster == c, 255, 0)).astype("u1")
         
-        # 分割されたマスクに対する処理
         nLabels, labelImages, data, center = cv2.connectedComponentsWithStatsWithAlgorithm(cluster_temp, 8, cv2.CV_16U, cv2.CCL_DEFAULT)
-        #label_fix = np.zeros(nLabels-1)
+
         sizes = data[:, 4]
         label_fix = np.where(sizes < 3, 0, np.arange(0, nLabels))
 
@@ -142,12 +223,12 @@ def annotations(i, file, format):
                 tmp["category_id"] = 1
 
                 # RLE
-                if(format == 0):
+                if(format == False):
                     coco_rle = mask.encode(np.asfortranarray(seg))
                     coco_rle["counts"] = coco_rle["counts"].decode('utf-8')
                     tmp["segmentation"] = coco_rle
                 # Polygon
-                elif(format == 1):
+                elif(format == True):
                     tmp["segmentation"] = polygonFromMask(cluster_temp)
                     
                 tmp["area"] = float((seg > 0.0).sum())
@@ -171,34 +252,36 @@ def process_images(args):
         
     return results
 
-def main(dir_base, input_type, format, json_name, num_processes):
-    img_path = os.path.join(dir_base, "images", input_type)
-    mask_path = os.path.join(dir_base, "masks", input_type)
-    if json_name == "auto":
-        json_path = os.path.join(dir_base, input_type + "_annotations.json")
+def main():
+
+    args = parse_args()
+
+    img_path = os.path.join(args.dataset, "images", args.type)
+    mask_path = os.path.join(args.dataset, "masks", args.type)
+    if args.name == "auto":
+        json_path = os.path.join(args.dataset, args.type + "_annotations.json")
     else:
-        json_path = os.path.join(dir_base, json_name)
+        json_path = os.path.join(args.dataset, args.name)
         
     mask_files = glob.glob(os.path.join(mask_path, "*"))
     mask_files.sort()
     
-    print("Start processing. CPU core: ", num_processes)
+    print("Start processing. CPU core: ", args.proc_num)
     
-    args = []
-    for i in range(num_processes):
-        start = i * len(mask_files) // num_processes
-        end = (i + 1) * len(mask_files) // num_processes
-        args.append(np.array([start, end, mask_files, i, format],dtype=object))
+    parallel_args = []
+    for i in range(args.proc_num):
+        start = i * len(mask_files) // args.proc_num
+        end = (i + 1) * len(mask_files) // args.proc_num
+        parallel_args.append(np.array([start, end, mask_files, i, args.ply],dtype=object))
     
     with ProcessPoolExecutor() as executor:
-        results = executor.map(process_images, args)
+        results = executor.map(process_images, parallel_args)
         
     ann_result = []
     for result in results:
         ann_result.extend(result)
 
     print("Begin writing the JSON file.")
-    # 各プロセスの結果を結合してJSONファイルに保存
     js = {
         "licenses": licenses(),
         "info": info(),
@@ -213,5 +296,4 @@ def main(dir_base, input_type, format, json_name, num_processes):
     print("Finished writing JSON file.")
 
 if __name__=='__main__':
-    dir_base, input_type, format, json_name, num_processes = get_args()
-    main(dir_base, input_type, format, json_name, num_processes)
+    main()

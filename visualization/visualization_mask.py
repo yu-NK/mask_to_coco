@@ -1,44 +1,82 @@
+"""
+File Name: visualization_mask.py
+Description: 
+    This script is intended to visualize dataset masks in COCO format, facilitating 
+    the analysis and verification of mask annotations for instance segmentation tasks. 
+
+Author: Yuki Naka
+Created Date: 2023-10-17
+Last Modified: 2024-03-13
+
+Usage:
+    python visualization_mask.py <dataset> --type [train|val|test] --output [output directory]
+
+    <dataset>    : The base directory path of the dataset containing COCO format mask images.
+    --type [train|val|test]: 
+        Specifies the dataset type. It can be 'train', 'val', or 'test'. Default is 'train'.
+    --output     : The output directory where mask visualizations will be saved. Defaults to './out'.
+    
+Dependencies:
+    - Python 3.x
+    - Numerical Operations: numpy
+    - Image Processing: PIL (Image, ImageDraw), OpenCV (cv2)
+    - Utility: tqdm
+
+License: MIT License
+"""
+
+# Standard Libraries
 import json
 import os
 import random
-import numpy as np
-from PIL import Image, ImageDraw
-from tqdm import tqdm
-import cv2
-
 import argparse
 
-def get_args():
-    # 準備
+# Numerical Operations
+import numpy as np
+
+# Image Processing
+from PIL import Image, ImageDraw
+import cv2
+
+# Utility
+from tqdm import tqdm
+
+def parse_args():
+
     parser = argparse.ArgumentParser(
         description="Code to Visualize Dataset Masks(COCO Format)"
     )
+    
+    parser.add_argument("dataset", type=str, help="The base directory path of the dataset.")
+    
+    parser.add_argument(
+        "--type",
+        type=str, 
+        default='train', 
+        help="The dataset type: train, val, or test. Defaults to 'train'."
+    )
 
-    # 標準入力以外の場合
-    parser = argparse.ArgumentParser()
-    
-    # データセットのパスを設定
-    parser.add_argument("dir", type=str, help="The base directory path of the dataset.")
-    
-    # 出力先を設定
-    parser.add_argument("-o", "--output-dir", dest="out", type=str, default='out', help="The output directory. Default is ./out")
+    parser.add_argument(
+        "--output", 
+        type=str, 
+        default='out', 
+        help="The output directory. Default is ./out")
 
     args = parser.parse_args()
+
+    return args
+
+def main():
+
+    args = parse_args()
+
+    DIR_INPUT_JSON = os.path.join(args.dataset, args.type + "_annotations.json")
     
-    dir_base = args.dir
-    dir_out  = args.out
-
-    return dir_base, dir_out
-
-def main(dir_base, dir_out):
-
-    DIR_INPUT_JSON = os.path.join(dir_base, 'annotations.json')
-    
-    # COCOデータセットのJSONファイルを読み込む
+    # Load the COCO dataset JSON file
     with open(DIR_INPUT_JSON, 'r') as f:
         coco_data = json.load(f)
     
-    os.makedirs(dir_out, exist_ok=True)
+    os.makedirs(args.output, exist_ok=True)
 
     for image_info in tqdm(coco_data["images"]):
         image_id = image_info["id"]
@@ -46,22 +84,22 @@ def main(dir_base, dir_out):
         annotations = [ann for ann in coco_data["annotations"] if ann["image_id"] == image_id]
 
         if annotations:
-            # 画像を読み込む
-            image = Image.open(os.path.join(dir_base ,file_name))
+            # Load images
+            image = Image.open(os.path.join(args.dataset ,file_name))
             width, height = image.size
 
-            # ランダムな色を生成（デフォルトは100）
+            # Generate random colors (default is 100)
             colors = np.array([[random.randint(0, 255), random.randint(0, 255), random.randint(0, 255)] for _ in range(100)])
 
             mask = Image.new('L', (width, height), 0)
             mask_col_data = np.zeros((height, width, 3), dtype = "u1")
 
-            # 新しいアノテーションIDを初期化
+            # Initialize a new annotation ID
             new_annotation_id = 1
 
             mask = Image.new('L', (width, height), 0)
             
-            # アノテーションのセグメンテーションマスクを描画
+            # Draw the segmentation masks of the annotations
             draw = ImageDraw.Draw(mask)
             
             for annotation in annotations:
@@ -77,8 +115,7 @@ def main(dir_base, dir_out):
             mask_indices = mask_array > 0
             mask_col_data[mask_indices] = colors[mask_array[mask_indices]]
 
-            cv2.imwrite(os.path.join(dir_out, os.path.splitext(os.path.basename(file_name))[0]+".png"), mask_col_data)
+            cv2.imwrite(os.path.join(args.output, os.path.splitext(os.path.basename(file_name))[0]+".png"), mask_col_data)
                 
 if __name__ == "__main__":
-    dir_base, dir_out = get_args()
-    main(dir_base, dir_out)
+    main()

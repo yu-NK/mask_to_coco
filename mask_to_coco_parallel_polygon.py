@@ -1,55 +1,99 @@
-import json
-import collections as cl
-import numpy as np
+"""
+File Name: mask_coco_coco_parallel_polygon.py
+Description: 
+    - This script is designed to create a COCO-format dataset from images and their
+      corresponding mask files for instance segmentation tasks. (Parallelized version)
+    - It generates a COCO format dataset (JSON file) from mask images annotated 
+      for instance segmentation of a single class.
+    - Editing info, licenses, categories required for COCO format in 
+      ./config/coco_config.py is necessary.
+    - The output segmentation format will be in polygons.
 
-import cv2
-import glob
+Author: Yuki Naka
+Created Date: 2023-10-22
+Last Modified: 2024-03-12
+
+Usage:
+    python mask_coco_coco_parallel_polygon.py <dataset> --type [train|val|test] --name [output JSON file name] --proc-num [number of cores]
+
+    <dataset>:
+        The base directory path of the dataset where the images and masks are stored.
+    --type [train|val|test]: 
+        Specifies the dataset type. It can be 'train', 'val', or 'test'. Default is 'train'.
+    --name [output JSON file name]: 
+        Specifies the name of the output JSON file for COCO annotations. 
+        The default is auto-generated based on the type, following the pattern '[TYPE]_annotations.json'.
+    --proc-num [number of cores]:
+        The number of cores used for parallelization. Defaults to the system's physical core count.
+
+Dependencies:
+    - Python 3.x, numpy, OpenCV (cv2), tqdm
+
+    Additional configuration files:
+    - config/coco_config.py: Contains settings for the COCO dataset.
+    - utils/tools.py: Contains additional tools required for dataset creation.
+
+License: MIT License
+"""
+
+# Standard Libraries
+import json
 import sys
 import os
+import glob
+import argparse
+import collections as cl
+
+# Data Handling
+import numpy as np
+
+# Image Processing
+import cv2
+
+# Utility
 from tqdm import tqdm
 
-import argparse
-# config/coco_config.pyで指定
-from config.coco_config import info, licenses, images, categories
-from utils.tools import background_del, assign_cluster_number
-
+# Parallel Processing
 import multiprocessing
 from concurrent.futures.process import ProcessPoolExecutor
 
-def get_args():
-    # 準備
+# Specified in config/coco_config.py
+from config.coco_config import info, licenses, images, categories
+from utils.tools import background_del, assign_cluster_number
+
+def parse_args():
     parser = argparse.ArgumentParser(
-        description="Creating a COCO-format dataset from mask images for instance segmentation （Parallel Version)."
+        description="Create a dataset in COCO format from mask images for instance segmentation "
+                    "(single class) with parallel processing. The output segmentation format will be in polygons."
+    )
+    
+    # Specify the dataset type (train, validation, or test)
+    parser.add_argument(
+        "--type",
+        type=str, 
+        default='train', 
+        help="The dataset type: train, val, or test. Defaults to 'train'."
+    )
+    
+    # Specify the JSON file name
+    parser.add_argument(
+        "--name",
+        type=str,
+        default='auto', 
+        help="The JSON file name for COCO annotations. Defaults to '[TYPE]_annotations.json'."
+    )
+    
+    # Specify the number of cores for parallel processing
+    parser.add_argument(
+        "--proc-num", 
+        type=int, 
+        default=multiprocessing.cpu_count(), 
+        help="The number of cores used for parallelization. Defaults to the system's physical core count."
     )
 
-    # 標準入力以外の場合
-    parser = argparse.ArgumentParser()
-    
-    # COCOフォーマットに変換する画像が含まれているディレクトリの指定
-    parser.add_argument("dir", type=str, help="The base directory path of the dataset.")
-    
-    # train or val or test
-    parser.add_argument("-t", "--type", dest="type", type=str, default='train', help="train or val or test. Default is train.")
-    
-    # jsonファイル名の指定
-    parser.add_argument("-n", "--name", dest="name", type=str, default='auto', help="Specify the JSON file name. The default is '[TYPE]_annotations.json'.")
-    
-    # jsonファイル名の指定
-    parser.add_argument("-c", "--core", dest="core", type=int, default=multiprocessing.cpu_count(), help="The number of cores to be used for parallelization. The default is the number of physical cores in the system.")
-    num_processes = multiprocessing.cpu_count()
-    
     args = parser.parse_args()
-    
-    dir_base   = args.dir
-    input_type = args.type
-    json_name  = args.name
-    
-    if(args.core > multiprocessing.cpu_count()):
-        num_processes = multiprocessing.cpu_count()
-    else:
-        num_processes = args.core
 
-    return dir_base, input_type, json_name, num_processes
+    return args
 
 def annotations(i, file):
     
@@ -67,9 +111,8 @@ def annotations(i, file):
     for c in range(1,cluster.max()+1):
         cluster_temp = (np.where(cluster == c, 255, 0)).astype("u1")
 
-        # 分割されたマスクに対する処理
         nLabels, labelImages, data, center = cv2.connectedComponentsWithStatsWithAlgorithm(cluster_temp, 8, cv2.CV_16U, cv2.CCL_DEFAULT)
-        #label_fix = np.zeros(nLabels-1)
+
         sizes = data[:, 4]
         label_fix = np.where(sizes < 15, 0, np.arange(0, nLabels))
 
@@ -86,7 +129,7 @@ def annotations(i, file):
             mask_ind = np.argwhere(fix_array == ann_label)
             seg[mask_ind[:, 0], mask_ind[:, 1]] = 255
 
-            # 輪郭抽出(CHAIN_APPROX_TC89_L1: 輪郭の座標を直線で近似できる部分の輪郭の点を省略)
+            # Contour extraction (CHAIN_APPROX_TC89_L1: Omits contour points that can be approximated by a straight line for parts of the contour)
             contours, _ = cv2.findContours(seg, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_TC89_L1)
             segmentation_list = []
 
@@ -126,34 +169,36 @@ def process_images(args):
         
     return results
 
-def main(dir_base, input_type, json_name, num_processes):
-    img_path = os.path.join(dir_base, "images", input_type)
-    mask_path = os.path.join(dir_base, "masks", input_type)
-    if json_name == "auto":
-        json_path = os.path.join(dir_base, input_type + "_annotations.json")
+def main():
+
+    args = parse_args()
+
+    img_path = os.path.join(args.dataset, "images", args.type)
+    mask_path = os.path.join(args.dataset, "masks", args.type)
+    if args.name == "auto":
+        json_path = os.path.join(args.dataset, args.type + "_annotations.json")
     else:
-        json_path = os.path.join(dir_base, json_name)
+        json_path = os.path.join(args.dataset, args.name)
         
     mask_files = glob.glob(os.path.join(mask_path, "*"))
     mask_files.sort()
     
-    print("Start processing. CPU core: ", num_processes)
+    print("Start processing. CPU core: ", args.proc_num)
     
-    args = []
-    for i in range(num_processes):
-        start = i * len(mask_files) // num_processes
-        end = (i + 1) * len(mask_files) // num_processes
-        args.append(np.array([start, end, mask_files, i],dtype=object))
+    parallel_args = []
+    for i in range(args.proc_num):
+        start = i * len(mask_files) // args.proc_num
+        end = (i + 1) * len(mask_files) // args.proc_num
+        parallel_args.append(np.array([start, end, mask_files, i],dtype=object))
     
     with ProcessPoolExecutor() as executor:
-        results = executor.map(process_images, args)
+        results = executor.map(process_images, parallel_args)
         
     ann_result = []
     for result in results:
         ann_result.extend(result)
 
     print("Begin writing the JSON file.")
-    # 各プロセスの結果を結合してJSONファイルに保存
     js = {
         "licenses": licenses(),
         "info": info(),
@@ -168,5 +213,4 @@ def main(dir_base, input_type, json_name, num_processes):
     print("Finished writing JSON file.")
 
 if __name__=='__main__':
-    dir_base, input_type, json_name, num_processes = get_args()
-    main(dir_base, input_type, json_name, num_processes)
+    main()
